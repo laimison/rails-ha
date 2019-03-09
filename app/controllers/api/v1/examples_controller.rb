@@ -5,7 +5,7 @@ module Api::V1
       # render json: params['test']
       render json: Example.all
 
-      Example.last.delete if Example.any?
+      # Example.last.delete if Example.any?
     end
 
     # POST http://IP:PORT/v1/examples
