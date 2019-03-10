@@ -1,11 +1,16 @@
+default: &default
+  url: mysql2-makara:///
+  makara:
+    sticky: true
+    connections:
+      - role: master
+        name: primary
+        url: 'mysql2://newuser:password@192.168.250.246:3306/testdb'
+      - name: replica
+        url: 'mysql2://newuser:password@192.168.250.207:3306/testdb'
+
 development:
-  host: 192.168.250.246
-  port: 3306
-  adapter: mysql2
-  encoding: utf8
-  reconnect: true
-  database: testdb
-  pool: 5
-  username: newuser
-  password: password
-  socket: /tmp/mysqld.sock
+  <<: *default
+
+production:
+  <<: *default

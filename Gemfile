@@ -43,4 +43,5 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 # Custom
 gem 'rb-readline'
-gem 'distribute_reads'
+gem 'makara', '~> 0.4.0'
+gem 'distribute_reads', '~> 0.2.4'
