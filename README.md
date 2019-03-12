@@ -22,3 +22,11 @@ Things you may want to cover:
 * Deployment instructions
 
 * ...
+
+## References
+
+### MySQL
+
+[slave read-only mode](https://dba.stackexchange.com/questions/30128/should-a-mysql-replication-slave-be-set-to-read-only)
+
+[mysql-utilities practical discussion](http://www.clusterdb.com/mysql/replication-and-auto-failover-made-easy-with-mysql-utilities)
