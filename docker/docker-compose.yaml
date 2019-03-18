@@ -7,27 +7,34 @@ services:
       context: .
       dockerfile: Dockerfile-monitor
     command: >
-      bash -c "/etc/init.d/mysql start
-      && tail -F /dev/null"
+      bash -c "true
+      ; tail -F /dev/null"
     user: 'root'
     volumes:
      - ./data:/data
-    working_dir: /data
+    working_dir: /data/monitor
   dolphin:
     hostname: master.local
     build:
       context: .
       dockerfile: Dockerfile-master
     command: >
-      bash -c "/etc/init.d/mysql start
-      && tail -F /dev/null"
+      bash -c "chown mysql:mysql -R /data/master
+      ; usermod -d /data/master/db/ mysql
+      ; chown -R mysql:mysql /var/lib/mysql /var/run/mysqld
+      ; /etc/init.d/mysql start
+      && mysql -u root -e \"create user 'slaveuser'@'%' identified by 'slavepassword'\"
+      ; mysql -u root -e \"grant replication slave on *.* to 'slaveuser'@'%'\"
+      ; mysql -u root -e \"create database pets\"
+      ; mysql -u root -e \"create table pets.cats (name varchar(20))\"
+      ; tail -F /dev/null"
     user: 'root'
     ports:
      - "33061:33061"
     volumes:
      - ./data:/data
-     - ./etc-mysql-mysql.conf.d-mysql.cnf-master:/etc/mysql/mysql.conf.d/mysql.cnf
-    working_dir: /root
+     - ./etc-mysql-mysql.conf.d-mysql.cnf-master:/etc/mysql/mysql.conf.d/mysqld.cnf
+    working_dir: /data/master
     environment:
      - MYSQL_ROOT_PASSWORD=root
   goldfish:
@@ -35,13 +42,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-slave
-    command: "tail -F /dev/null"
+    command: >
+      bash -c "chown mysql:mysql -R /data/slave
+      ; usermod -d /data/slave/db/ mysql
+      ; chown -R mysql:mysql /var/lib/mysql /var/run/mysqld
+      ; /etc/init.d/mysql start
+      ; tail -F /dev/null"
     user: 'root'
     ports:
      - "33062:33062"
     volumes:
      - ./data:/data
-     - ./etc-mysql-mysql.conf.d-mysql.cnf-slave:/etc/mysql/mysql.conf.d/mysql.cnf
-    working_dir: /root
+     - ./etc-mysql-mysql.conf.d-mysql.cnf-slave:/etc/mysql/mysql.conf.d/mysqld.cnf
+    working_dir: /data/slave
     environment:
      - MYSQL_ROOT_PASSWORD=root

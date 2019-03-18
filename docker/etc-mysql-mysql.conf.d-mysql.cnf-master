@@ -8,7 +8,8 @@ pid-file	= /var/run/mysqld/mysqld.pid
 socket		= /var/run/mysqld/mysqld.sock
 port		= 33061
 basedir		= /usr
-datadir		= /var/lib/mysql
+#datadir		= /var/lib/mysql
+datadir = /data/master/db
 tmpdir		= /tmp
 lc-messages-dir	= /usr/share/mysql
 skip-external-locking
@@ -26,16 +27,16 @@ query_cache_size        = 16M
 #general_log_file        = /var/log/mysql/mysql.log
 #general_log             = 1
 log_error = /var/log/mysql/error.log
-server-id		= 1
-log_bin			= /var/log/mysql/mysql-bin.log
+server-id	= 1
+log_bin = /var/log/mysql/mysql-bin.log
 binlog_format = ROW
-expire_logs_days	= 10
-max_binlog_size   = 100M
-auto_increment_increment= 2
-auto_increment_offset   = 2
+expire_logs_days = 10
+max_binlog_size = 100M
+auto_increment_increment = 2
+auto_increment_offset = 1
 gtid_mode = ON
 enforce-gtid-consistency = true
-skip-grant-tables
-report-host=slavehost
-report-port=33061
+#skip-grant-tables
+report-host = master
+report-port = 33061
 log-slave-updates = true
