@@ -21,3 +21,11 @@
 
 docker/data/master/db/*
 docker/data/slave/db/*
+docker/data/master/log/*
+docker/data/slave/log/*
+docker/data/master/log/mysqld.pid
+docker/data/slave/log/mysqld.pid
+docker/data/master/log/mysqld.sock
+docker/data/slave/log/mysqld.sock
+docker/data/master/log/mysqld.sock.lock
+docker/data/slave/log/mysqld.sock.lock
