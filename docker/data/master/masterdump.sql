@@ -21,13 +21,13 @@ SET @@SESSION.SQL_LOG_BIN= 0;
 -- GTID state at the beginning of the backup 
 --
 
-SET @@GLOBAL.GTID_PURGED='44086c11-48dc-11e9-a28d-0242ac110002:1';
+SET @@GLOBAL.GTID_PURGED='44086c11-48dc-11e9-a28d-0242ac110002:1-10';
 
 --
 -- Position to start replication or point-in-time recovery from
 --
 
-CHANGE MASTER TO MASTER_LOG_FILE='mysql-bin.000001', MASTER_LOG_POS=360;
+CHANGE MASTER TO MASTER_LOG_FILE='mysql-bin.000011', MASTER_LOG_POS=400;
 
 --
 -- Current Database: `mysql`
@@ -351,7 +351,7 @@ CREATE TABLE `innodb_index_stats` (
 
 LOCK TABLES `innodb_index_stats` WRITE;
 /*!40000 ALTER TABLE `innodb_index_stats` DISABLE KEYS */;
-INSERT INTO `innodb_index_stats` VALUES ('mysql','gtid_executed','PRIMARY','2019-03-17 17:44:08','n_diff_pfx01',0,1,'source_uuid'),('mysql','gtid_executed','PRIMARY','2019-03-17 17:44:08','n_diff_pfx02',0,1,'source_uuid,interval_start'),('mysql','gtid_executed','PRIMARY','2019-03-17 17:44:08','n_leaf_pages',1,NULL,'Number of leaf pages in the index'),('mysql','gtid_executed','PRIMARY','2019-03-17 17:44:08','size',1,NULL,'Number of pages in the index'),('pets','cats','GEN_CLUST_INDEX','2019-03-17 23:32:56','n_diff_pfx01',0,1,'DB_ROW_ID'),('pets','cats','GEN_CLUST_INDEX','2019-03-17 23:32:56','n_leaf_pages',1,NULL,'Number of leaf pages in the index'),('pets','cats','GEN_CLUST_INDEX','2019-03-17 23:32:56','size',1,NULL,'Number of pages in the index'),('sys','sys_config','PRIMARY','2019-03-17 17:44:08','n_diff_pfx01',6,1,'variable'),('sys','sys_config','PRIMARY','2019-03-17 17:44:08','n_leaf_pages',1,NULL,'Number of leaf pages in the index'),('sys','sys_config','PRIMARY','2019-03-17 17:44:08','size',1,NULL,'Number of pages in the index');
+INSERT INTO `innodb_index_stats` VALUES ('mysql','gtid_executed','PRIMARY','2019-03-18 23:57:59','n_diff_pfx01',1,1,'source_uuid'),('mysql','gtid_executed','PRIMARY','2019-03-18 23:57:59','n_diff_pfx02',1,1,'source_uuid,interval_start'),('mysql','gtid_executed','PRIMARY','2019-03-18 23:57:59','n_leaf_pages',1,NULL,'Number of leaf pages in the index'),('mysql','gtid_executed','PRIMARY','2019-03-18 23:57:59','size',1,NULL,'Number of pages in the index'),('pets','cats','GEN_CLUST_INDEX','2019-03-18 22:08:11','n_diff_pfx01',5,1,'DB_ROW_ID'),('pets','cats','GEN_CLUST_INDEX','2019-03-18 22:08:11','n_leaf_pages',1,NULL,'Number of leaf pages in the index'),('pets','cats','GEN_CLUST_INDEX','2019-03-18 22:08:11','size',1,NULL,'Number of pages in the index'),('sys','sys_config','PRIMARY','2019-03-17 17:44:08','n_diff_pfx01',6,1,'variable'),('sys','sys_config','PRIMARY','2019-03-17 17:44:08','n_leaf_pages',1,NULL,'Number of leaf pages in the index'),('sys','sys_config','PRIMARY','2019-03-17 17:44:08','size',1,NULL,'Number of pages in the index');
 /*!40000 ALTER TABLE `innodb_index_stats` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -379,7 +379,7 @@ CREATE TABLE `innodb_table_stats` (
 
 LOCK TABLES `innodb_table_stats` WRITE;
 /*!40000 ALTER TABLE `innodb_table_stats` DISABLE KEYS */;
-INSERT INTO `innodb_table_stats` VALUES ('mysql','gtid_executed','2019-03-17 17:44:08',0,1,0),('pets','cats','2019-03-17 23:32:56',0,1,0),('sys','sys_config','2019-03-17 17:44:08',6,1,0);
+INSERT INTO `innodb_table_stats` VALUES ('mysql','gtid_executed','2019-03-18 23:57:59',1,1,0),('pets','cats','2019-03-18 22:08:11',5,1,0),('sys','sys_config','2019-03-17 17:44:08',6,1,0);
 /*!40000 ALTER TABLE `innodb_table_stats` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -900,7 +900,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES ('localhost','root','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','','','','',0,0,0,0,'auth_socket','','N','2019-03-17 17:44:08',NULL,'N'),('localhost','mysql.session','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','Y','N','N','N','N','N','N','N','N','N','N','N','N','N','','','','',0,0,0,0,'mysql_native_password','*THISISNOTAVALIDPASSWORDTHATCANBEUSEDHERE','N','2019-03-17 17:44:08',NULL,'Y'),('localhost','mysql.sys','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','','','','',0,0,0,0,'mysql_native_password','*THISISNOTAVALIDPASSWORDTHATCANBEUSEDHERE','N','2019-03-17 17:44:08',NULL,'Y'),('localhost','debian-sys-maint','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','','','','',0,0,0,0,'mysql_native_password','*2141F428B73BB308713103F731FF6370A9D59EC4','N','2019-03-17 17:44:08',NULL,'N'),('%','slaveuser','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','Y','N','N','N','N','N','N','N','N','N','','','','',0,0,0,0,'mysql_native_password','*978E3885B0036AD8EA2B7565855F6776B8A43B4A','N','2019-03-17 23:30:48',NULL,'N');
+INSERT INTO `user` VALUES ('localhost','root','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','','','','',0,0,0,0,'auth_socket','*81F5E21E35407D884A6CD4A731AEBFB6AF209E1B','N','2019-03-17 17:44:08',NULL,'N'),('localhost','mysql.session','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','Y','N','N','N','N','N','N','N','N','N','N','N','N','N','','','','',0,0,0,0,'mysql_native_password','*THISISNOTAVALIDPASSWORDTHATCANBEUSEDHERE','N','2019-03-17 17:44:08',NULL,'Y'),('localhost','mysql.sys','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','','','','',0,0,0,0,'mysql_native_password','*THISISNOTAVALIDPASSWORDTHATCANBEUSEDHERE','N','2019-03-17 17:44:08',NULL,'Y'),('localhost','debian-sys-maint','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','','','','',0,0,0,0,'mysql_native_password','*2141F428B73BB308713103F731FF6370A9D59EC4','N','2019-03-17 17:44:08',NULL,'N'),('%','slaveuser','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','N','Y','N','N','N','N','N','N','N','N','N','','','','',0,0,0,0,'mysql_native_password','*978E3885B0036AD8EA2B7565855F6776B8A43B4A','N','2019-03-17 23:30:48',NULL,'N'),('%','root','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','','','','',0,0,0,0,'mysql_native_password','*576EE5B74C20E68F2A5A240F3E408E6DE43DD73F','N','2019-03-18 00:29:04',NULL,'N'),('docker_whale_1.docker_default','root','Y','Y','N','N','Y','Y','Y','N','N','N','Y','N','N','N','N','Y','N','N','N','Y','N','N','N','N','N','N','N','N','N','','','','',0,0,0,0,'mysql_native_password','*576EE5B74C20E68F2A5A240F3E408E6DE43DD73F','N','2019-03-18 00:26:44',NULL,'N');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -968,6 +968,7 @@ CREATE TABLE `cats` (
 
 LOCK TABLES `cats` WRITE;
 /*!40000 ALTER TABLE `cats` DISABLE KEYS */;
+INSERT INTO `cats` VALUES ('fluffy'),('fluffy'),('fluffy'),('fluffy'),('fluffy'),('fluffy'),('fluffy');
 /*!40000 ALTER TABLE `cats` ENABLE KEYS */;
 UNLOCK TABLES;
 SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
@@ -981,4 +982,4 @@ SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-03-17 23:47:34
+-- Dump completed on 2019-03-19  0:27:27

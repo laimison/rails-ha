@@ -19,9 +19,8 @@ services:
       context: .
       dockerfile: Dockerfile-master
     command: >
-      bash -c "chown mysql:mysql -R /data/master
+      bash -c "chown -R mysql:mysql /data/master/db /data/master/log /data/master/mysqld.*
       ; usermod -d /data/master/db/ mysql
-      ; chown -R mysql:mysql /var/lib/mysql /var/run/mysqld
       ; /etc/init.d/mysql start
       && mysql -u root -e \"create user 'slaveuser'@'%' identified by 'slavepassword'\"
       ; mysql -u root -e \"grant replication slave on *.* to 'slaveuser'@'%'\"
@@ -43,9 +42,8 @@ services:
       context: .
       dockerfile: Dockerfile-slave
     command: >
-      bash -c "chown mysql:mysql -R /data/slave
+      bash -c "chown -R mysql:mysql /data/slave/db /data/slave/log /data/mslave/mysqld.*
       ; usermod -d /data/slave/db/ mysql
-      ; chown -R mysql:mysql /var/lib/mysql /var/run/mysqld
       ; /etc/init.d/mysql start
       ; tail -F /dev/null"
     user: 'root'

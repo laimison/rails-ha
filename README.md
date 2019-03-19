@@ -34,3 +34,5 @@ Things you may want to cover:
 [slave read-only mode](https://dba.stackexchange.com/questions/30128/should-a-mysql-replication-slave-be-set-to-read-only)
 
 [configuration generator](https://tools.percona.com/wizard)
+
+[full step-by-step procedure to resync a master-slave replication](https://stackoverflow.com/questions/2366018/how-to-re-sync-the-mysql-db-if-master-and-slave-have-different-database-incase-o)
