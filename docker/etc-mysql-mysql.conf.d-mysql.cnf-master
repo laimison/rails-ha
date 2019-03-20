@@ -1,11 +1,11 @@
 [mysqld_safe]
-socket		= /data/master/mysqld.sock
+socket		= /data/master/mysqld/mysqld.sock
 nice		= 0
 
 [mysqld]
 user		= mysql
-pid-file	= /data/master/mysqld.pid
-socket		= /data/master/mysqld.sock
+pid-file	= /data/master/mysqld/mysqld.pid
+socket		= /data/master/mysqld/mysqld.sock
 port		= 33061
 basedir		= /usr
 #datadir		= /var/lib/mysql
@@ -24,7 +24,6 @@ myisam-recover-options  = BACKUP
 #thread_concurrency     = 10
 query_cache_limit	= 1M
 query_cache_size        = 16M
-#general_log_file        = /var/log/mysql/mysql.log
 #general_log             = 1
 log_error = /data/master/log/error.log
 server-id	= 1
@@ -42,4 +41,5 @@ report-port = 33061
 log-slave-updates = true
 
 [client]
-socket		= /data/master/mysqld.sock
+port = 33061
+socket		= /data/master/mysqld/mysqld.sock

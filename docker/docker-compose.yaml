@@ -19,13 +19,13 @@ services:
       context: .
       dockerfile: Dockerfile-master
     command: >
-      bash -c "chown -R mysql:mysql /data/master/db /data/master/log /data/master/mysqld.*
+      bash -c "chown -R mysql:mysql /data/master /var/run/mysqld /var/lib/mysql
       ; usermod -d /data/master/db/ mysql
       ; /etc/init.d/mysql start
-      && mysql -u root -e \"create user 'slaveuser'@'%' identified by 'slavepassword'\"
+      ; mysql -u root -e \"create user 'slaveuser'@'%' identified by 'slavepassword'\"
       ; mysql -u root -e \"grant replication slave on *.* to 'slaveuser'@'%'\"
-      ; mysql -u root -e \"create database pets\"
-      ; mysql -u root -e \"create table pets.cats (name varchar(20))\"
+      ; mysql -u root -e \"create database animals\"
+      ; mysql -u root -e \"create table animals.cats (name varchar(20))\"
       ; tail -F /dev/null"
     user: 'root'
     ports:
@@ -42,7 +42,7 @@ services:
       context: .
       dockerfile: Dockerfile-slave
     command: >
-      bash -c "chown -R mysql:mysql /data/slave/db /data/slave/log /data/mslave/mysqld.*
+      bash -c "chown -R mysql:mysql /data/slave /var/run/mysqld /var/lib/mysql
       ; usermod -d /data/slave/db/ mysql
       ; /etc/init.d/mysql start
       ; tail -F /dev/null"
