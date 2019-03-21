@@ -1,47 +1,53 @@
 [mysqld_safe]
-socket		= /data/slave/mysqld/mysqld.sock
+# socket		= /var/run/mysqld/mysqld.sock
 nice		= 0
 
-[mysqld]
-user		= mysql
-pid-file	= /data/slave/mysqld/mysqld.pid
+# changed
 socket		= /data/slave/mysqld/mysqld.sock
-port		= 33062
+
+[mysqld]
+# datadir		= /var/lib/mysql
+# pid-file	= /var/run/mysqld/mysqld.pid
+# socket		= /var/run/mysqld/mysqld.sock
+# general_log             = 1
+# max_connections        = 100
+# table_cache            = 64
+# thread_concurrency     = 10
 basedir		= /usr
-#datadir		= /var/lib/mysql
-datadir = /data/slave/db
 tmpdir		= /tmp
 lc-messages-dir	= /usr/share/mysql
+user		= mysql
 skip-external-locking
-bind-address		= 0.0.0.0
 key_buffer_size		= 16M
 max_allowed_packet	= 16M
 thread_stack		= 192K
 thread_cache_size       = 8
 myisam-recover-options  = BACKUP
-#max_connections        = 100
-#table_cache            = 64
-#thread_concurrency     = 10
 query_cache_limit	= 1M
 query_cache_size        = 16M
-#general_log             = 1
-log_error = /data/slave/log/error.log
-server-id	= 2
-# not sure if log_bin should be enabled
-log_bin = /data/slave/log/mysql-bin.log
-binlog_format = ROW
 expire_logs_days = 10
 max_binlog_size = 100M
+
+# changed
+pid-file	= /data/slave/mysqld/mysqld.pid
+socket		= /data/slave/mysqld/mysqld.sock
+datadir = /data/slave/db
+log_error = /data/slave/log/error.log
+log_bin = /data/slave/log/mysql-bin.log
+bind-address		= 0.0.0.0
+port		= 33062
+server-id	= 2
+binlog_format = ROW
 auto_increment_increment = 2
 auto_increment_offset = 2
 gtid_mode = ON
 enforce-gtid-consistency = true
-#skip-grant-tables
+log-slave-updates = true
 report-host = slave
 report-port = 33062
-log-slave-updates = true
 master-info-repository = TABLE
 
 [client]
+# changed
 port = 33062
 socket		= /data/slave/mysqld/mysqld.sock

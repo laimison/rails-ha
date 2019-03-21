@@ -22,10 +22,11 @@ services:
       bash -c "chown -R mysql:mysql /data/master /var/run/mysqld /var/lib/mysql
       ; usermod -d /data/master/db/ mysql
       ; /etc/init.d/mysql start
+      ; mysql -u root -e \"UPDATE mysql.user SET authentication_string=PASSWORD('password') WHERE  User='debian-sys-maint' AND Host='localhost'; flush privileges;\"
       ; mysql -u root -e \"create user 'slaveuser'@'%' identified by 'slavepassword'\"
       ; mysql -u root -e \"grant replication slave on *.* to 'slaveuser'@'%'\"
       ; mysql -u root -e \"create database animals\"
-      ; mysql -u root -e \"create table animals.cats (name varchar(20))\"
+      ; mysql -u root -e \"create table animals.list (name varchar(20))\"
       ; tail -F /dev/null"
     user: 'root'
     ports:
@@ -33,6 +34,7 @@ services:
     volumes:
      - ./data:/data
      - ./etc-mysql-mysql.conf.d-mysql.cnf-master:/etc/mysql/mysql.conf.d/mysqld.cnf
+     - ./etc-mysql-debian.cnf-slave:/etc/mysql/debian.cnf
     working_dir: /data/master
     environment:
      - MYSQL_ROOT_PASSWORD=root
@@ -45,6 +47,7 @@ services:
       bash -c "chown -R mysql:mysql /data/slave /var/run/mysqld /var/lib/mysql
       ; usermod -d /data/slave/db/ mysql
       ; /etc/init.d/mysql start
+      ; mysql -u root -e \"UPDATE mysql.user SET authentication_string=PASSWORD('password') WHERE  User='debian-sys-maint' AND Host='localhost'; flush privileges;\"
       ; tail -F /dev/null"
     user: 'root'
     ports:
@@ -52,6 +55,7 @@ services:
     volumes:
      - ./data:/data
      - ./etc-mysql-mysql.conf.d-mysql.cnf-slave:/etc/mysql/mysql.conf.d/mysqld.cnf
+     - ./etc-mysql-debian.cnf-slave:/etc/mysql/debian.cnf
     working_dir: /data/slave
     environment:
      - MYSQL_ROOT_PASSWORD=root
