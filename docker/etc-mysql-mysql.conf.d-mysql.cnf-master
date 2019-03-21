@@ -1,14 +1,14 @@
 [mysqld_safe]
-# socket		= /var/run/mysqld/mysqld.sock
+socket		= /var/run/mysqld/mysqld.sock
 nice		= 0
 
 # changed
-socket		= /data/master/mysqld/mysqld.sock
+# socket		= /data/master/mysqld/mysqld.sock
 
 [mysqld]
 # datadir		= /var/lib/mysql
-# pid-file	= /var/run/mysqld/mysqld.pid
-# socket		= /var/run/mysqld/mysqld.sock
+pid-file	= /var/run/mysqld/mysqld.pid
+socket		= /var/run/mysqld/mysqld.sock
 # general_log             = 1
 # max_connections        = 100
 # table_cache            = 64
@@ -29,8 +29,8 @@ expire_logs_days = 10
 max_binlog_size = 100M
 
 # changed
-pid-file	= /data/master/mysqld/mysqld.pid
-socket		= /data/master/mysqld/mysqld.sock
+# pid-file	= /data/master/mysqld/mysqld.pid
+# socket		= /data/master/mysqld/mysqld.sock
 datadir = /data/master/db
 log_error = /data/master/log/error.log
 log_bin = /data/master/log/mysql-bin.log
@@ -47,6 +47,8 @@ report-host = master
 report-port = 33061
 
 [client]
+socket		= /var/run/mysqld/mysqld.sock
+
 # changed
 port = 33061
-socket		= /data/master/mysqld/mysqld.sock
+# socket		= /data/master/mysqld/mysqld.sock

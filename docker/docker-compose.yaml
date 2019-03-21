@@ -34,7 +34,7 @@ services:
     volumes:
      - ./data:/data
      - ./etc-mysql-mysql.conf.d-mysql.cnf-master:/etc/mysql/mysql.conf.d/mysqld.cnf
-     - ./etc-mysql-debian.cnf-slave:/etc/mysql/debian.cnf
+     - ./etc-mysql-debian.cnf-master:/etc/mysql/debian.cnf
     working_dir: /data/master
     environment:
      - MYSQL_ROOT_PASSWORD=root
