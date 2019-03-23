@@ -14,7 +14,7 @@ services:
      - ./data:/data
     working_dir: /data/monitor
   dolphin:
-    hostname: master.local
+    hostname: dolphin.local
     build:
       context: .
       dockerfile: Dockerfile-master
@@ -40,7 +40,7 @@ services:
     environment:
      - MYSQL_ROOT_PASSWORD=root
   goldfish:
-    hostname: slave.local
+    hostname: goldfish.local
     build:
       context: .
       dockerfile: Dockerfile-slave

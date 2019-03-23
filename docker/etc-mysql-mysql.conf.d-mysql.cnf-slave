@@ -43,7 +43,7 @@ auto_increment_offset = 2
 gtid_mode = ON
 enforce-gtid-consistency = true
 log-slave-updates = true
-report-host = slave
+report-host = goldfish
 report-port = 33062
 master-info-repository = TABLE
 

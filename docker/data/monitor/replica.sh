@@ -2,7 +2,7 @@
 
 case $* in
   status)
-  mysqlrplshow --master=root:root@192.168.250.246:3306 --discover-slaves-login=root:root --verbose
+  mysqlrplshow --master=root:password@dolphin:33061 --discover-slaves-login=root:password --verbose
   ;;
   install)
   echo 2

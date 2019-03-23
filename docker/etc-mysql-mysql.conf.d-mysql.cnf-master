@@ -43,7 +43,7 @@ auto_increment_offset = 1
 gtid_mode = ON
 enforce-gtid-consistency = true
 log-slave-updates = true
-report-host = master
+report-host = dolphin
 report-port = 33061
 
 [client]
