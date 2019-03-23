@@ -23,6 +23,7 @@ docker/data/master/backup/*
 docker/data/master/mysqld/*
 docker/data/master/log/*
 docker/data/master/db/*
+docker/data/master/db.*
 
 docker/data/slave/backup/*
 docker/data/slave/mysqld/*
