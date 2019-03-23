@@ -1,3 +1,3 @@
 #!/bin/bash
 
-mysql -u root -e "start slave"
+mysql -u root -ppassword -e "start slave"

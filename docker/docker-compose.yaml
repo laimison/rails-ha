@@ -27,6 +27,7 @@ services:
       ; mysql -u root -ppassword -P 33061 -e \"grant replication slave on *.* to 'slaveuser'@'%'\"
       ; mysql -u root -ppassword -P 33061 -e \"create database animals\"
       ; mysql -u root -ppassword -P 33061 -e \"create table animals.list (name varchar(20))\"
+      ; mysqldump -u root -ppassword -P 33061 --all-databases --master-data --flush-privileges > /data/master/backup/masterdump.sql
       ; tail -F /dev/null"
     user: 'root'
     ports:

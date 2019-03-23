@@ -1,3 +1,3 @@
 #!/bin/bash
 
-mysql -u root -e "stop slave"
+mysql -u root -ppassword -e "stop slave"

@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # This can reset @@GLOBAL.GTID_EXECUTED
-mysql -u root -e "reset master"
+mysql -u root -ppassword -e "reset master"
