@@ -22,12 +22,13 @@ services:
       bash -c "chown -R mysql:mysql /data/master /var/run/mysqld /var/lib/mysql
       ; usermod -d /data/master/db/ mysql
       ; /etc/init.d/mysql start
-      ; mysql -u root -ppassword -P 33061 -e \"GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password'\"
-      ; mysql -u root -ppassword -P 33061 -e \"create user 'slaveuser'@'%' identified by 'slavepassword'\"
-      ; mysql -u root -ppassword -P 33061 -e \"grant replication slave on *.* to 'slaveuser'@'%'\"
-      ; mysql -u root -ppassword -P 33061 -e \"create database animals\"
-      ; mysql -u root -ppassword -P 33061 -e \"create table animals.list (name varchar(20))\"
-      ; mysqldump -u root -ppassword -P 33061 --all-databases --master-data --flush-privileges > /data/master/backup/masterdump.sql
+      ; mysql -u root -ppassword -e \"GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password'\"
+      ; mysql -u root -ppassword -e \"grant SUPER, GRANT OPTION, REPLICATION SLAVE, SELECT, RELOAD, DROP, CREATE, INSERT on *.* to 'root'@'%' identified by 'password'\"
+      ; mysql -u root -ppassword -e \"create user 'slaveuser'@'%' identified by 'slavepassword'\"
+      ; mysql -u root -ppassword -e \"grant replication slave on *.* to 'slaveuser'@'%'\"
+      ; mysql -u root -ppassword -e \"create database animals\"
+      ; mysql -u root -ppassword -e \"create table animals.list (name varchar(20))\"
+      ; mysqldump -u root -ppassword --all-databases --master-data --flush-privileges > /data/master/backup/masterdump.sql
       ; tail -F /dev/null"
     user: 'root'
     ports:
@@ -48,8 +49,9 @@ services:
       bash -c "chown -R mysql:mysql /data/slave /var/run/mysqld /var/lib/mysql
       ; usermod -d /data/slave/db/ mysql
       ; /etc/init.d/mysql start
-      ; mysql -u root -ppassword -P 33062 -e \"ALTER USER 'root'@'%' IDENTIFIED BY 'password'\"
-      ; mysql -u root -ppassword -P 33062 -e \"GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password'\"
+      ; mysql -u root -ppassword -e \"ALTER USER 'root'@'%' IDENTIFIED BY 'password'\"
+      ; mysql -u root -ppassword -e \"GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password'\"
+      ; mysql -u root -ppassword -e \"grant SUPER, GRANT OPTION, REPLICATION SLAVE, SELECT, RELOAD, DROP, CREATE, INSERT on *.* to 'root'@'%' identified by 'password'\"
       ; tail -F /dev/null"
     user: 'root'
     ports:
