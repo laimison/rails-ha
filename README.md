@@ -38,3 +38,5 @@ Things you may want to cover:
 [full step-by-step procedure to resync a master-slave replication](https://stackoverflow.com/questions/2366018/how-to-re-sync-the-mysql-db-if-master-and-slave-have-different-database-incase-o)
 
 [percona mysql solution to create/restore slave](https://www.percona.com/blog/2013/02/08/how-to-createrestore-a-slave-using-gtid-replication-in-mysql-5-6/)
+
+[some useful details about mysql read_only real-time setting, VIP host, etc.](https://blog.isao.co.jp/mysqlfailover_dtest/)
