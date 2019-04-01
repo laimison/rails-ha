@@ -5,9 +5,12 @@ default: &default
     connections:
       - role: master
         name: primary
-        url: 'mysql2://newuser:password@192.168.250.246:3306/testdb'
+        url: 'mysql2://root:password@localhost:33061/testdb'
       - name: replica
-        url: 'mysql2://newuser:password@192.168.250.207:3306/testdb'
+        url: 'mysql2://root:password@localhost:33062/testdb'
+
+test:
+  <<: *default
 
 development:
   <<: *default
