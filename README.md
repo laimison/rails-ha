@@ -23,6 +23,25 @@ Things you may want to cover:
 
 * ...
 
+## Rails
+
+Run
+
+```
+rails s
+```
+
+Access page [localhost:3000](http://localhost:3000)
+
+## MySQL
+
+Run
+
+```
+cd docker
+./run.sh
+```
+
 ## References
 
 ### MySQL
