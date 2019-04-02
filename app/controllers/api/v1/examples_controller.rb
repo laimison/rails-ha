@@ -4,10 +4,10 @@ module Api::V1
     def index
       # render json: params['test']
 
-      distribute_reads do
+      #distribute_reads do
         everything = Example.all
         render json: everything
-      end
+      #end
       # Example.last.delete if Example.any?
     end
 

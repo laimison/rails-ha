@@ -1,13 +1,16 @@
 default: &default
   url: mysql2-makara:///
   makara:
+    blacklist_duration: 0
+    rescue_connection_failures: false
+    master_ttl: 5
     sticky: true
     connections:
       - role: master
         name: primary
-        url: 'mysql2://root:password@localhost:33061/testdb'
+        url: 'mysql2://root:password@192.168.2.100:33061/testdb'
       - name: replica
-        url: 'mysql2://root:password@localhost:33062/testdb'
+        url: 'mysql2://root:password@192.168.2.100:33062/testdb'
 
 test:
   <<: *default
