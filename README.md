@@ -59,3 +59,7 @@ cd docker
 [percona mysql solution to create/restore slave](https://www.percona.com/blog/2013/02/08/how-to-createrestore-a-slave-using-gtid-replication-in-mysql-5-6/)
 
 [some useful details about mysql read_only real-time setting, VIP host, etc.](https://blog.isao.co.jp/mysqlfailover_dtest/)
+
+[makara](https://github.com/taskrabbit/makara)
+
+[distribute_reads](https://github.com/ankane/distribute_reads)

@@ -1,9 +1,9 @@
 default: &default
   url: mysql2-makara:///
   makara:
-    blacklist_duration: 0
-    rescue_connection_failures: false
-    master_ttl: 5
+    # blacklist_duration: 5
+    # rescue_connection_failures: false
+    # master_ttl: 5
     sticky: true
     connections:
       - role: master
