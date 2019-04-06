@@ -41,6 +41,10 @@ services:
     working_dir: /data/master
     environment:
      - MYSQL_ROOT_PASSWORD=root
+    networks:
+      default:
+        aliases:
+          - master
   goldfish:
     hostname: goldfish.local
     build:
@@ -64,3 +68,7 @@ services:
     working_dir: /data/slave
     environment:
      - MYSQL_ROOT_PASSWORD=root
+    networks:
+      default:
+        aliases:
+          - master

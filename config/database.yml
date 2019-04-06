@@ -5,6 +5,10 @@ default: &default
     # rescue_connection_failures: false
     # master_ttl: 5
     sticky: true
+    # slave_strategy: failover
+    # master_strategy: failover
+    # master_node_selector: 'Makara::NodeSelectors::SingleWithFailover'
+    # slave_node_selector: 'Makara::NodeSelectors::RoundRobin'
     connections:
       - role: master
         name: primary
