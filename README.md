@@ -42,6 +42,24 @@ cd docker
 ./run.sh
 ```
 
+## Building container
+
+Build and run container separately
+
+```
+cd docker
+docker-compose build orca
+docker-compose up -d orca
+docker-compose ps
+docker exec -it docker_orca_1 /bin/bash
+```
+
+or
+
+```
+docker-compose up -d --build orca
+```
+
 ## References
 
 ### MySQL
