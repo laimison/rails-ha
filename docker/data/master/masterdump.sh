@@ -1,3 +1,3 @@
 #!/bin/bash
 
-mysqldump -u root --all-databases --master-data --flush-privileges > /data/master/backup/masterdump.sql
+mysqldump -u root -ppassword --all-databases --master-data --flush-privileges > /data/master/backup/masterdump.sql
