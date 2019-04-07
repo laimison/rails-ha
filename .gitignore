@@ -1,10 +1,10 @@
-docker/data/master/backup/*
-docker/data/master/mysqld/*
-docker/data/master/log/*
-docker/data/master/db/*
-docker/data/master/db.*
+data/master/backup/*
+data/master/mysqld/*
+data/master/log/*
+data/master/db/*
+data/master/db.*
 
-docker/data/slave/backup/*
-docker/data/slave/mysqld/*
-docker/data/slave/log/*
-docker/data/slave/db/*
+data/slave/backup/*
+data/slave/mysqld/*
+data/slave/log/*
+data/slave/db/*
