@@ -72,3 +72,19 @@ services:
       default:
         aliases:
           - master
+  orca:
+    hostname: orca.local
+    build:
+      context: .
+      dockerfile: Dockerfile-rails
+    command: >
+      bash -c "true
+      ; tail -F /dev/null"
+    user: 'root'
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/data
+    working_dir: /data/rails
+    environment:
+      - test1=test1
