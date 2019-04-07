@@ -77,7 +77,9 @@ services:
       context: .
       dockerfile: Dockerfile-rails
     command: >
-      bash -c "bundle && rails s -p 3000 -b 0.0.0.0
+      bash -c "bundle
+      ; until echo $master | grep -E '^[0-9]+\.'; do master=`host dolphin | awk '{print $NF}'`; echo "$master master" >> /etc/hosts; sleep 1; done
+      ; rails s -p 3000 -b 0.0.0.0
       ; tail -F /dev/null"
     user: 'root'
     ports:

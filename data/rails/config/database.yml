@@ -12,9 +12,9 @@ default: &default
     connections:
       - role: master
         name: primary
-        url: 'mysql2://root:password@192.168.2.100:33061/testdb'
+        url: 'mysql2://root:password@master:33061/testdb'
       - name: replica
-        url: 'mysql2://root:password@192.168.2.100:33062/testdb'
+        url: 'mysql2://root:password@goldfish:33062/testdb'
 
 test:
   <<: *default
