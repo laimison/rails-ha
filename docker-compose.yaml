@@ -77,10 +77,14 @@ services:
       context: .
       dockerfile: Dockerfile-rails
     command: >
+      bash -c "echo 111 > /tmp/111"
+    command: >
       bash -c "bundle
-      ; until echo $master | grep -E '^[0-9]+\.'; do master=`host dolphin | awk '{print $NF}'`; echo "$master master" >> /etc/hosts; sleep 1; done
+      ; until echo $$master_db | grep -E '^[0-9]+\.'; do master_db=`host dolphin | awk '{print $$NF}'`; echo $$master_db master >> /etc/hosts; sleep 1; done
       ; rails s -p 3000 -b 0.0.0.0
       ; tail -F /dev/null"
+    command: >
+      bash -c "echo 222 > /tmp/222"
     user: 'root'
     ports:
       - "3000:3000"
