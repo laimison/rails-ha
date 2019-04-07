@@ -60,6 +60,13 @@ or
 docker-compose up -d --build orca
 ```
 
+or
+
+```
+docker build -t rails -f Dockerfile-rails .
+docker run -it rails /bin/bash
+```
+
 ## References
 
 ### MySQL
