@@ -93,3 +93,4 @@ services:
     working_dir: /data/rails
     environment:
       - test1=test1
+    privileged: true

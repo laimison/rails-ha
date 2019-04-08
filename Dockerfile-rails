@@ -1,7 +1,7 @@
 # This is debian based system
 FROM ruby:2.4.6-stretch
 RUN apt update && apt install -y wget iputils-ping vim net-tools lsof sudo less netcat dnsutils iproute2 tcpdump tcptrack
-RUN apt install -y mysql-client
+RUN apt install -y mysql-client iptables
 RUN gem install rails -v 5.1.6.1 \
 && gem install rake -v 12.3.2 \
 && gem instal concurrent-ruby -v 1.1.4 \
