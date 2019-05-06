@@ -48,7 +48,20 @@ services:
       - ./mysqld-secondary.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
       - ./001-initialize-secondary.sh:/docker-entrypoint-initdb.d/001-initialize.sh
       - ./001-initialize-secondary.sql:/docker-entrypoint-initdb.d/001-initialize.sql
-  # mysql-monitor:
-  #   environment:
-  #     REPLICATION_USER: replication
-  #     REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
+  mysql-monitor:
+    # docker exec -it mysql-monitor bash
+    container_name: mysql-1
+    hostname: mysql-1
+    build:
+      context: .
+      dockerfile: Dockerfile-mysql-monitor
+    #command: >
+    #  bash -c "screen -d -m mysqlfailover --force --master=root:password@mysql-1:3306 --discover-slaves-login=root:password --verbose auto"
+    command: >
+      bash -c "tail -F /dev/null"
+    user: 'root'
+    #volumes:
+    # - ./data:/data
+    #working_dir: /data/monitor
+    stdin_open: true
+    tty: true
