@@ -1,0 +1,3 @@
+FROM mysql:5.7.26
+
+RUN apt update && apt install -y procps lsof vim

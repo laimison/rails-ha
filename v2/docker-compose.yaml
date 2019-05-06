@@ -1,1 +1,54 @@
 version: '3.5'
+
+# mkdir -p data/primary && mkdir -p data/secondary && docker-compose build && docker-compose down && docker-compose up -d
+
+services:
+  # https://hub.docker.com/_/mysql
+  mysql-1:
+    # docker exec -it mysql-1 bash
+    # mysql -h mysql-1 -u root -pexample
+    container_name: mysql-1
+    hostname: mysql-1
+    build:
+      context: .
+      dockerfile: Dockerfile-mysql-primary
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_USER: app
+      MYSQL_PASSWORD: ${APP_PASSWORD}
+      MYSQL_DATABASE: my-app
+      REPLICATION_USER: replication
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
+    ports:
+      - 33061:3306
+    volumes:
+      - ./data/primary:/var/lib/mysql
+      - ./mysqld-primary.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
+      - ./001-initialize-primary.sh:/docker-entrypoint-initdb.d/001-initialize.sh
+      - ./001-initialize-primary.sql:/docker-entrypoint-initdb.d/001-initialize.sql
+  mysql-2:
+    # docker exec -it mysql-2 bash
+    # mysql -h mysql-2 -u root -pexample
+    container_name: mysql-2
+    hostname: mysql-2
+    build:
+      context: .
+      dockerfile: Dockerfile-mysql-secondary
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_USER: app
+      MYSQL_PASSWORD: ${APP_PASSWORD}
+      MYSQL_DATABASE: my-app
+    ports:
+      - 33062:3306
+    volumes:
+      - ./data/secondary:/var/lib/mysql
+      - ./mysqld-secondary.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
+      - ./001-initialize-secondary.sh:/docker-entrypoint-initdb.d/001-initialize.sh
+      - ./001-initialize-secondary.sql:/docker-entrypoint-initdb.d/001-initialize.sql
+  # mysql-monitor:
+  #   environment:
+  #     REPLICATION_USER: replication
+  #     REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
