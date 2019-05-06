@@ -41,6 +41,8 @@ services:
       MYSQL_USER: app
       MYSQL_PASSWORD: ${APP_PASSWORD}
       MYSQL_DATABASE: my-app
+      REPLICATION_USER: replication
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
     ports:
       - 33062:3306
     volumes:
@@ -50,18 +52,29 @@ services:
       - ./001-initialize-secondary.sql:/docker-entrypoint-initdb.d/001-initialize.sql
   mysql-monitor:
     # docker exec -it mysql-monitor bash
-    container_name: mysql-1
-    hostname: mysql-1
+    container_name: mysql-monitor
+    hostname: mysql-monitor
     build:
       context: .
       dockerfile: Dockerfile-mysql-monitor
-    #command: >
-    #  bash -c "screen -d -m mysqlfailover --force --master=root:password@mysql-1:3306 --discover-slaves-login=root:password --verbose auto"
+    depends_on:
+      - "mysql-1"
+      - "mysql-2"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
+      REPLICATION_USER: replication
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
     command: >
-      bash -c "tail -F /dev/null"
+      bash -c "
+      tail -F /tmp/mysqlfailover.log > /dev/console
+      & sleep 5
+      && mysqlfailover --force --master=root:${ROOT_PASSWORD}@mysql-1:3306 --discover-slaves-login=root:${ROOT_PASSWORD} --daemon nodetach --log=/tmp/mysqlfailover.log --pedantic --exec-after=/tmp/mysqlfailover_exec_after.sh --verbose auto
+      ; tail -F /dev/null"
     user: 'root'
-    #volumes:
-    # - ./data:/data
-    #working_dir: /data/monitor
+    volumes:
+      # Docker should be installed as well
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./mysqlfailover_exec_after.sh:/tmp/mysqlfailover_exec_after.sh
+      - ./mysqlswitchover_exec_after.sh:/tmp/mysqlswitchover_exec_after.sh
     stdin_open: true
     tty: true
