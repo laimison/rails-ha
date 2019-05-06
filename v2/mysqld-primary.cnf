@@ -7,3 +7,14 @@ datadir		= /var/lib/mysql
 bind-address = 0.0.0.0
 # Disabling symbolic-links is recommended to prevent assorted security risks
 symbolic-links=0
+
+log-bin = /var/lib/mysql/mysql-bin.log
+server-id	= 1
+binlog_format = ROW
+auto_increment_increment = 2
+auto_increment_offset = 1
+gtid_mode = ON
+enforce-gtid-consistency = true
+log-slave-updates = true
+report-host = mysql-1
+report-port = 3306
