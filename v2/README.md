@@ -1,24 +1,24 @@
 # Rails & MySQL High Availability
 
-Ensuring working replication, failover and switchover
+Ensuring working replication, automatic failover, manual slave restoring and optional switchover
 
-## Recreate DB from Zero
+## Initialise
+
+Steps before leaving high availability for production
+
+### Recreate DB from Zero
 
 ```
-docker-compose down
-rm -rf data/primary/*
-rm -rf data/secondary/*
-docker-compose build
-docker-compose up -d
+docker-compose down; rm -rf data/primary/*; rm -rf data/secondary/*; docker-compose build; docker-compose up -d
 ```
 
-## Join Second DB to Master
+### Join Second DB as Slave to Master
 
 1) Stop auto failover
 
 ```
-sleep 5 && docker exec -it mysql-monitor bash -c "killall mysqlfailover"
-docker exec -it mysql-monitor bash -c "ps -ef -ww"
+docker exec -it mysql-monitor bash -c "killall sleep mysqlfailover"
+docker exec -it mysql-monitor bash -c "ps -ef"
 ```
 
 2) Create the table
