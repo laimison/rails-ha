@@ -1,6 +1,6 @@
 # Rails & MySQL High Availability
 
-Ensuring replication and failover
+Ensuring working replication, failover and switchover
 
 ## Recreate DB from Zero
 
@@ -9,22 +9,70 @@ docker-compose down
 rm -rf data/primary/*
 rm -rf data/secondary/*
 docker-compose build
-docker-compose up
+docker-compose up -d
 ```
 
 ## Join Second DB to Master
 
+1) Stop auto failover
+
+```
+sleep 5 && docker exec -it mysql-monitor bash -c "killall mysqlfailover"
+docker exec -it mysql-monitor bash -c "ps -ef -ww"
+```
+
+2) Create the table
+
 ```
 docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; create table test (id INT NOT NULL AUTO_INCREMENT, name varchar(20), PRIMARY KEY (id))"'
+```
 
+3) Join Second DB to Master
+
+Method A
+
+```
+# docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "STOP SLAVE"'
+# docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "RESET MASTER"'
+# docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "RESET MASTER"'
+
+# docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "STOP SLAVE"'
 docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CHANGE MASTER TO MASTER_HOST=\"mysql-1\", MASTER_PORT=3306, MASTER_USER=\"replication\", MASTER_PASSWORD=\"${MYSQL_ROOT_PASSWORD}\", MASTER_AUTO_POSITION=1"'
 docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "START SLAVE"'
+```
 
+Method B
+
+```
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "reset master"'
+docker exec -it mysql-monitor bash -c 'mysqlreplicate --master=root:"${MYSQL_ROOT_PASSWORD}"@mysql-1:3306 --slave=root:"${MYSQL_ROOT_PASSWORD}"@mysql-2:3306 --rpl-user=replication:${REPLICATION_PASSWORD} --verbose'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "start slave"'
+```
+
+Method C
+
+```
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "stop slave"'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "change master to master_host=\"mysql-1\", master_port=3306, master_user=\"replication\", master_password=\"${REPLICATION_PASSWORD}\""'
+docker exec -it mysql-2 bash -c 'mysqldump -u root -p"${MYSQL_ROOT_PASSWORD}" -h mysql-1 --all-databases --master-data --flush-privileges > /tmp/master-dump-mysql-1.sql'
+docker exec -it mysql-2 bash -c 'ls -l /tmp'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "reset master"'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "change master to master_auto_position=0"'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" < /tmp/master-dump-mysql-1.sql'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "start slave"'
+```
+
+4) Check Whether Replication Worked
+
+```
 docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from test;"'
 docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; insert into test(name) values (\"`shuf -n1 -e crab medusa seal`\")"'
 docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from test;"'
 docker-compose down
 docker-compose up -d
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from test;"'
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; insert into test(name) values (\"`shuf -n1 -e crab medusa seal`\")"'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from test;"'
 docker logs -f mysql-monitor
 ```
 
