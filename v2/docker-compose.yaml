@@ -38,7 +38,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
       MYSQL_ROOT_HOST: "%"
-      # Replication fails if users created before the cluster (some differences?)
+      # Replication fails if users created before the cluster building (some differences?)!
       # MYSQL_USER: app
       # MYSQL_PASSWORD: ${APP_PASSWORD}
       # MYSQL_DATABASE: my-app
