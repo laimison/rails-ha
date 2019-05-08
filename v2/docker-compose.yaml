@@ -38,9 +38,10 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
       MYSQL_ROOT_HOST: "%"
-      MYSQL_USER: app
-      MYSQL_PASSWORD: ${APP_PASSWORD}
-      MYSQL_DATABASE: my-app
+      # Replication fails if users created before the cluster (some differences?)
+      # MYSQL_USER: app
+      # MYSQL_PASSWORD: ${APP_PASSWORD}
+      # MYSQL_DATABASE: my-app
       REPLICATION_USER: replication
       REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
     ports:
