@@ -40,6 +40,7 @@ Method A - Simply Connect to Master (enabling GTID - MASTER_AUTO_POSITION=1) - G
 ```
 docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT * FROM mysql.gtid_executed"'
 docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CHANGE MASTER TO MASTER_HOST=\"mysql-1\", MASTER_PORT=3306, MASTER_USER=\"replication\", MASTER_PASSWORD=\"${REPLICATION_PASSWORD}\", MASTER_AUTO_POSITION=1"'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SET GLOBAL read_only = ON;"'
 docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "START SLAVE"'
 # replication and app users should be created now
 ```
@@ -48,6 +49,7 @@ Method B - mysqlreplicate - Good Method
 
 ```
 docker exec -it mysql-monitor bash -c 'mysqlreplicate --master=root:"${MYSQL_ROOT_PASSWORD}"@mysql-1:3306 --slave=root:"${MYSQL_ROOT_PASSWORD}"@mysql-2:3306 --rpl-user=replication:${REPLICATION_PASSWORD} --verbose'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SET GLOBAL read_only = ON;"'
 ```
 
 Method C - Using Dump (last resort if nothing worked)
@@ -60,6 +62,7 @@ docker exec -it mysql-2 bash -c 'ls -l /tmp'
 docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "reset master"'
 # docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "change master to master_auto_position=0"'
 docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" < /tmp/master-dump-mysql-1.sql'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SET GLOBAL read_only = ON;"'
 docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "start slave"'
 ```
 
@@ -115,6 +118,7 @@ docker exec -it mysql-monitor bash -c 'mysqlrplshow --master=root:"${MYSQL_ROOT_
 2) Watch logs in another terminal & Make sure mysqlfailover is running
 
 ```
+# you may need to do: docker restart mysql-monitor
 docker logs -f mysql-monitor
 ```
 
@@ -124,6 +128,7 @@ docker logs -f mysql-monitor
 docker kill --signal=SIGKILL mysql-1
 # wait here...
 docker exec -it mysql-monitor bash -c 'mysqlrplshow --master=root:"${MYSQL_ROOT_PASSWORD}"@mysql-2:3306 --discover-slaves-login=root:"${MYSQL_ROOT_PASSWORD}" --verbose'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SET GLOBAL read_only = OFF;"'
 ```
 
 4) write some records to slave and restore the original master
@@ -134,6 +139,7 @@ docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "us
 docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from test;"'
 
 docker start mysql-1
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SET GLOBAL read_only = ON;"'
 docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}"'
 ```
 
@@ -159,6 +165,7 @@ Method A - connect to master
 
 ```
 docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "change master to master_host=\"mysql-2\", master_port=3306, master_user=\"replication\", master_password=\"${REPLICATION_PASSWORD}\", MASTER_AUTO_POSITION=1"'
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SET GLOBAL read_only = ON;"'
 docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "start slave"'
 ```
 
@@ -166,6 +173,7 @@ Method B - mysqlreplicate
 
 ```
 docker exec -it mysql-monitor bash -c 'mysqlreplicate --master=root:"${MYSQL_ROOT_PASSWORD}"@mysql-2:3306 --slave=root:"${MYSQL_ROOT_PASSWORD}"@mysql-1:3306 --rpl-user=replication:${REPLICATION_PASSWORD} --verbose'
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SET GLOBAL read_only = ON;"'
 docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "start slave"'
 ```
 
@@ -177,6 +185,7 @@ docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "ch
 docker exec -it mysql-1 bash -c 'mysqldump -u root -p"${MYSQL_ROOT_PASSWORD}" -h mysql-2 --all-databases --master-data --flush-privileges > /tmp/master-dump-mysql-2.sql'
 docker exec -it mysql-1 bash -c 'ls -l /tmp'
 docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" < /tmp/master-dump-mysql-2.sql'
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SET GLOBAL read_only = ON;"'
 docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "start slave"'
 ```
 
@@ -202,10 +211,11 @@ docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "us
 docker exec -it mysql-monitor bash -c 'mysqlrplshow --master=root:"${MYSQL_ROOT_PASSWORD}"@mysql-2:3306 --discover-slaves-login=root:"${MYSQL_ROOT_PASSWORD}" --verbose'
 ```
 
-2) Switchover
+2) Switchover (freeze writes) - run both commands at the same time
 
 ```
 docker exec -it mysql-monitor bash -c 'mysqlrpladmin --master=root:"${MYSQL_ROOT_PASSWORD}"@mysql-2:3306 --discover-slaves-login=root:"${MYSQL_ROOT_PASSWORD}" --new-master=root:"${MYSQL_ROOT_PASSWORD}"@mysql-1:3306 --rpl-user=replication:"${REPLICATION_PASSWORD}" --verbose switchover'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SET GLOBAL read_only = ON;"'
 ```
 
 or
@@ -220,17 +230,84 @@ docker exec -it mysql-monitor bash -c 'mysqlrpladmin --master=root:example@mysql
 docker exec -it mysql-monitor bash -c 'mysqlrplshow --master=root:"${MYSQL_ROOT_PASSWORD}"@mysql-1:3306 --discover-slaves-login=root:"${MYSQL_ROOT_PASSWORD}" --verbose'
 ```
 
-4) Connect original slave to original master
+4) Restart mysqlfailover
 
 ```
+docker restart mysql-monitor
+```
+
+5) Connect original slave to original master (enable writes)
+
+```
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SET GLOBAL read_only = OFF;"'
 docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CHANGE MASTER TO MASTER_HOST=\"mysql-1\", MASTER_PORT=3306, MASTER_USER=\"replication\", MASTER_PASSWORD=\"${REPLICATION_PASSWORD}\", MASTER_AUTO_POSITION=1"'
 docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "START SLAVE"'
 ```
 
-5) Check status
+6) Restore node on CDN load balancer (optional)
 
 ```
+# Usually send API PUT request ...
+```
+
+
+7) Check status
+
+```
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT @@global.read_only"'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT @@global.read_only"'
+
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from examples"'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from examples"'
+
+docker exec -it rails bash -c "cat /etc/hosts | grep mysql; host mysql-1; host mysql-2; lsof -i -P"
 docker exec -it mysql-monitor bash -c 'mysqlrplshow --master=root:"${MYSQL_ROOT_PASSWORD}"@mysql-1:3306 --discover-slaves-login=root:"${MYSQL_ROOT_PASSWORD}" --verbose'
+
+docker logs -f mysql-monitor
+```
+
+## Change DNS
+
+List DNS records
+
+```
+docker exec -it rails bash -c "cat /etc/hosts; host mysql-1; host mysql-2"
+```
+
+Delete mysql DNS records
+
+```
+docker exec -it rails bash -c "cat /etc/hosts > /tmp/hosts && sed -i \"/\smysql-/d\" /tmp/hosts && cat /tmp/hosts > /etc/hosts"
+```
+
+If mysql-1 becoming master and mysql-2 is left as replica
+
+```
+docker exec -it rails bash -c "host mysql-1 | awk '{print \$NF}' | while read -r line; do echo \"\$line mysql-master\" | tee -a /etc/hosts; done"
+docker exec -it rails bash -c "host mysql-2 | awk '{print \$NF}' | while read -r line; do echo \"\$line mysql-replica\" | tee -a /etc/hosts; done"
+```
+
+OR
+
+If mysql-2 becoming master and mysql-1 is left as replica
+
+```
+docker exec -it rails bash -c "host mysql-2 | awk '{print \$NF}' | while read -r line; do echo \"\$line mysql-master\" | tee -a /etc/hosts; done"
+docker exec -it rails bash -c "host mysql-1 | awk '{print \$NF}' | while read -r line; do echo \"\$line mysql-replica\" | tee -a /etc/hosts; done"
+```
+
+Verify
+
+```
+docker exec -it rails bash -c "cat /etc/hosts; host mysql-1; host mysql-2"
+```
+
+Check opened connections
+
+```
+docker exec -it rails bash -c "lsof -i -P"
+docker exec -it rails bash -c "ping -c 3 mysql-master"
+docker exec -it rails bash -c "ping -c 3 mysql-replica"
 ```
 
 ## Restore mysqlfailover

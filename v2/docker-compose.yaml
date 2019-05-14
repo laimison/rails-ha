@@ -1,6 +1,6 @@
 version: '3.5'
 
-# mkdir -p data/primary && mkdir -p data/secondary && docker-compose build && docker-compose down && docker-compose up -d
+# mkdir -p data/primary && mkdir -p data/secondary && mkdir -p data/rails && docker-compose build && docker-compose down && docker-compose up -d && docker-compose ps
 
 services:
   # https://hub.docker.com/_/mysql
@@ -65,6 +65,9 @@ services:
       MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
       REPLICATION_USER: replication
       REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
+      CDN_AUTH_KEY: ${CDN_AUTH_KEY}
+      CDN_AUTH_EMAIL: ${CDN_AUTH_EMAIL}
+      CDN_API_ADDRESS: ${CDN_API_ADDRESS}
     command: >
       bash -c "
       tail -F /tmp/mysqlfailover.log > /dev/console
@@ -79,3 +82,19 @@ services:
       - ./mysqlswitchover_exec_after.sh:/tmp/mysqlswitchover_exec_after.sh
     stdin_open: true
     tty: true
+  rails:
+    container_name: rails
+    hostname: rails
+    build:
+      context: .
+      dockerfile: Dockerfile-rails
+    command: >
+      bash -c "
+      cd /root/app && rails db:migrate ; rails g model Example name:string ; rails s -p 3000 -b 0.0.0.0
+      ; tail -F /dev/null"
+    volumes:
+      - ./rails/database.yml:/root/app/config/database.yml
+      - ./rails/routes.rb:/root/app/config/routes.rb
+      - ./rails/examples_controller.rb:/root/app/app/controllers/api/v1/examples_controller.rb
+    ports:
+      - "3000:3000"

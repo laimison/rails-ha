@@ -3,25 +3,29 @@
 
 default: &default
   # Parameter to explor if this is allowed here
-  # reconnect: true
+  reconnect: true
+  #timeout: 5000
+  #reaping_frequency: 10
+  #connection_timeout: 5
+  #read_timeout: 5
   url: mysql2-makara:///
   makara:
-    # rescue_connection_failures: false
     # master_strategy: failover
     # master_node_selector: 'Makara::NodeSelectors::SingleWithFailover'
     # slave_node_selector: 'Makara::NodeSelectors::RoundRobin'
     sticky: true
     # Paramters to explore
     # slave_strategy: failover
-    # master_ttl: 5
-    # blacklist_duration: 0
+    #master_ttl: 5
+    #rescue_connection_failures: false
+    blacklist_duration: 0
     connections:
       - role: master
-        name: primary
-        url: 'mysql2://root:password@master:33061/testdb'
-        # disable_blacklist: true
-      - name: replica
-        url: 'mysql2://root:password@goldfish:33062/testdb'
+        name: master
+        url: 'mysql2://app:example@mysql-master:3306/my-app'
+      - role: replica
+        name: replica
+        url: 'mysql2://app:example@mysql-replica:3306/my-app'
 
 test:
   <<: *default
