@@ -1,6 +1,6 @@
 version: '3.5'
 
-# mkdir -p data/primary && mkdir -p data/secondary && mkdir -p data/rails && docker-compose build && docker-compose down && docker-compose up -d && docker-compose ps
+# mkdir -p data/primary && mkdir -p data/replica && mkdir -p data/rails && docker-compose build && docker-compose down && docker-compose up -d && docker-compose ps
 
 services:
   # https://hub.docker.com/_/mysql
@@ -34,23 +34,20 @@ services:
     hostname: mysql-2
     build:
       context: .
-      dockerfile: Dockerfile-mysql-secondary
+      dockerfile: Dockerfile-mysql-replica
     environment:
+      # Don't use MYSQL_USER, MYSQL_PASSWORD and MYSQL_DATABASE, initial replication fails due to differences
       MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
       MYSQL_ROOT_HOST: "%"
-      # Replication fails if users created before the cluster building (some differences?)!
-      # MYSQL_USER: app
-      # MYSQL_PASSWORD: ${APP_PASSWORD}
-      # MYSQL_DATABASE: my-app
       REPLICATION_USER: replication
       REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
     ports:
       - 33062:3306
     volumes:
-      - ./data/secondary:/var/lib/mysql
-      - ./mysqld-secondary.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
-      - ./001-initialize-secondary.sh:/docker-entrypoint-initdb.d/001-initialize.sh
-      - ./001-initialize-secondary.sql:/docker-entrypoint-initdb.d/001-initialize.sql
+      - ./data/replica:/var/lib/mysql
+      - ./mysqld-replica.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
+      - ./001-initialize-replica.sh:/docker-entrypoint-initdb.d/001-initialize.sh
+      - ./001-initialize-replica.sql:/docker-entrypoint-initdb.d/001-initialize.sql
   mysql-monitor:
     # docker exec -it mysql-monitor bash
     container_name: mysql-monitor
