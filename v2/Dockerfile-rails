@@ -26,11 +26,11 @@ RUN gem install rails -v 5.1.6.1 \
 RUN mkdir -p /root/app && cd /root/app && rails new . --api --force --database=mysql && bundle
 
 # Add to Gemfile
-RUN printf "\ngem 'rb-readline'\ngem 'makara', '~> 0.4.0'\ngem 'distribute_reads', '~> 0.2.4'\ngem 'mysql2-reconnect_with_readonly'\n" >> /root/app/Gemfile
+RUN printf "\ngem 'rb-readline'\ngem 'makara', '~> 0.4.0'\ngem 'distribute_reads', '~> 0.2.4'\ngem 'mysql2-reconnect_with_readonly'\ngem 'rack-cors'\n" >> /root/app/Gemfile
 
 RUN mkdir -p /root/app/app/controllers/api/v1
 
-# models/example.rb - not needed
+# rails g model Example name:string # created models/example.rb and schema.rb
 
 # Access API at http://localhost:3000/v1/examples
 

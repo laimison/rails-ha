@@ -21,7 +21,7 @@ docker exec -it mysql-monitor bash -c "killall sleep mysqlfailover"
 docker exec -it mysql-monitor bash -c "ps -ef -ww"
 ```
 
-2) Create the table
+2) Create the table (test table is not for Rails so can be skipped)
 
 ```
 docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; create table test (id INT NOT NULL AUTO_INCREMENT, name varchar(20), PRIMARY KEY (id))"'
