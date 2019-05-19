@@ -21,7 +21,7 @@ services:
       REPLICATION_USER: replication
       REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
     ports:
-      # the trick to test two mysql instances on your laptop
+      # we want to use two different servers for HA, but without Docker Swarm
       - "127.0.0.1:3306:3306"
     volumes:
       - ./data/primary:/var/lib/mysql
@@ -43,8 +43,8 @@ services:
       REPLICATION_USER: replication
       REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
     ports:
-      # the trick to test two mysql instances on your laptop - this is your local IP
-      - "192.168.2.100:3306:3306"
+      # we want to use two different servers for HA, but without Docker Swarm
+      - "0.0.0.0:3306:3306"
     volumes:
       - ./data/replica:/var/lib/mysql
       - ./mysqld-replica.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
@@ -55,6 +55,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-rails
+    environment:
+      MYSQL_1=127.0.0.1
+      MYSQL_2=mysql-2
     command: >
       bash -c "
       cd /app && bundle install && rails db:migrate ; rails s -p 5000 -b 0.0.0.0
@@ -62,7 +65,7 @@ services:
     volumes:
       - ./rails:/app
     ports:
-      - "5000:5000"
+      - "127.0.0.1:5000:5000"
     working_dir: /app
   rails-2:
     container_name: rails-2
@@ -70,6 +73,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-rails
+    environment:
+      MYSQL_1=127.0.0.1
+      MYSQL_2=mysql-2
     command: >
       bash -c "
       cd /app && bundle install && rails db:migrate ; rails s -p 5000 -b 0.0.0.0
@@ -77,7 +83,7 @@ services:
     volumes:
       - ./rails:/app
     ports:
-      - "5000:5000"
+      - "0.0.0.0:5000:5000"
     working_dir: /app
   mysql-monitor:
     # docker exec -it mysql-monitor bash

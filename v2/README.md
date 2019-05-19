@@ -318,11 +318,16 @@ docker-compose up -d mysql-monitor
 docker logs -f mysql-monitor
 ```
 
-## Trick on Mac OS to Bind on Two Different IP addresses
+## An example to test service if responding
 
 ```
-python3 -m http.server 8000 --bind 127.0.0.1
 python3 -m http.server 8000 --bind 192.168.2.100
+```
+
+## Reach host on Mac OS
+
+```
+ping host.docker.internal
 ```
 
 First one is localhost and second one is WiFi address
