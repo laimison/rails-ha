@@ -21,12 +21,13 @@ services:
       REPLICATION_USER: replication
       REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
     ports:
-      - 33061:3306
+      # the trick to test two mysql instances on your laptop
+      - "127.0.0.1:3306:3306"
     volumes:
       - ./data/primary:/var/lib/mysql
       - ./mysqld-primary.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
       - ./001-initialize-primary.sh:/docker-entrypoint-initdb.d/001-initialize.sh
-      - ./001-initialize-primary.sql:/docker-entrypoint-initdb.d/001-initialize.sql
+    working_dir: /var/lib/mysql
   mysql-2:
     # docker exec -it mysql-2 bash
     # mysql -h mysql-2 -u root -pexample
@@ -36,18 +37,48 @@ services:
       context: .
       dockerfile: Dockerfile-mysql-replica
     environment:
-      # Don't use MYSQL_USER, MYSQL_PASSWORD and MYSQL_DATABASE, initial replication fails due to differences
+      # Don't use MYSQL_USER, MYSQL_PASSWORD and MYSQL_DATABASE for mysql-2, initial replication fails due to differences
       MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
       MYSQL_ROOT_HOST: "%"
       REPLICATION_USER: replication
       REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
     ports:
-      - 33062:3306
+      # the trick to test two mysql instances on your laptop - this is your local IP
+      - "192.168.2.100:3306:3306"
     volumes:
       - ./data/replica:/var/lib/mysql
       - ./mysqld-replica.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
-      - ./001-initialize-replica.sh:/docker-entrypoint-initdb.d/001-initialize.sh
-      - ./001-initialize-replica.sql:/docker-entrypoint-initdb.d/001-initialize.sql
+    working_dir: /var/lib/mysql
+  rails-1:
+    container_name: rails-1
+    hostname: rails-1
+    build:
+      context: .
+      dockerfile: Dockerfile-rails
+    command: >
+      bash -c "
+      cd /app && bundle install && rails db:migrate ; rails s -p 5000 -b 0.0.0.0
+      ; tail -F /dev/null"
+    volumes:
+      - ./rails:/app
+    ports:
+      - "5000:5000"
+    working_dir: /app
+  rails-2:
+    container_name: rails-2
+    hostname: rails-2
+    build:
+      context: .
+      dockerfile: Dockerfile-rails
+    command: >
+      bash -c "
+      cd /app && bundle install && rails db:migrate ; rails s -p 5000 -b 0.0.0.0
+      ; tail -F /dev/null"
+    volumes:
+      - ./rails:/app
+    ports:
+      - "5000:5000"
+    working_dir: /app
   mysql-monitor:
     # docker exec -it mysql-monitor bash
     container_name: mysql-monitor
@@ -69,32 +100,13 @@ services:
       bash -c "
       tail -F /tmp/mysqlfailover.log > /dev/console
       & sleep 5
-      && mysqlfailover --force --master=root:${ROOT_PASSWORD}@mysql-1:3306 --discover-slaves-login=root:${ROOT_PASSWORD} --daemon nodetach --log=/tmp/mysqlfailover.log --pedantic --exec-after=/tmp/mysqlfailover_exec_after.sh --verbose auto
+      && mysqlfailover --force --master=root:${ROOT_PASSWORD}@mysql-1:3306 --discover-slaves-login=root:${ROOT_PASSWORD} --daemon nodetach --log=/tmp/mysqlfailover.log --pedantic --exec-after=/scripts/mysqlfailover_exec_after.sh --verbose auto
       ; tail -F /dev/null"
     user: 'root'
     volumes:
-      # Docker should be installed as well
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./mysqlfailover_exec_after.sh:/tmp/mysqlfailover_exec_after.sh
-      - ./mysqlswitchover_exec_after.sh:/tmp/mysqlswitchover_exec_after.sh
+      - ./mysqlfailover_exec_after.sh:/scripts/mysqlfailover_exec_after.sh
+      - ./mysqlswitchover_exec_after.sh:/scripts/mysqlswitchover_exec_after.sh
     stdin_open: true
     tty: true
-  rails:
-    container_name: rails
-    hostname: rails
-    build:
-      context: .
-      dockerfile: Dockerfile-rails
-    command: >
-      bash -c "
-      cd /root/app && bundle install && rails db:migrate ; rails s -p 5000 -b 0.0.0.0
-      ; tail -F /dev/null"
-    volumes:
-      - ./rails/database.yml:/root/app/config/database.yml
-      - ./rails/routes.rb:/root/app/config/routes.rb
-      - ./rails/examples_controller.rb:/root/app/app/controllers/api/v1/examples_controller.rb
-      - ./rails/schema.rb:/root/app/db/schema.rb
-      - ./rails/20190511133600_create_examples.rb:/root/app/db/migrate/20190511133600_create_examples.rb
-      - ./rails/example.rb:/root/app/app/models/example.rb
-    ports:
-      - "3000:3000"
+    working_dir: /scripts

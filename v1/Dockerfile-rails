@@ -23,4 +23,5 @@ RUN gem install rails -v 5.1.6.1 \
 && gem install spring-watcher-listen -v 2.0.1
 
 # Initial app was built with:
+# mkdir -p data/rails && cd data/rails
 # rails new . --api --force --database=mysql && bundle

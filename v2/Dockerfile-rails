@@ -1,38 +1,12 @@
 # This is debian based system
+
 FROM ruby:2.4.6-stretch
 RUN apt update && apt install -y wget iputils-ping vim net-tools lsof sudo less netcat dnsutils iproute2 tcpdump tcptrack psmisc
 RUN apt install -y mysql-client iptables nscd
-RUN gem install rails -v 5.1.6.1 \
-&& gem install rake -v 12.3.2 \
-&& gem instal concurrent-ruby -v 1.1.4 \
-&& gem install minitest -v 5.11.3 \
-&& gem install nokogiri -v 1.10.1 \
-&& gem install rack -v 2.0.6 \
-&& gem install byebug -v 11.0.0 \
-&& gem install makara -v 0.4.0 \
-&& gem install distribute_reads -v 0.2.4 \
-&& gem install ffi -v 1.10.0 \
-&& gem install rb-fsevent -v 0.10.3 \
-&& gem install rb-inotify -v 0.10.0 \
-&& gem install ruby_dep -v 1.5.0 \
-&& gem install listen -v 3.1.5 \
-&& gem install mysql2 -v 0.5.2 \
-&& gem install puma -v 3.12.0 \
-&& gem install rb-readline -v 0.5.5 \
-&& gem install spring -v 2.0.2 \
-&& gem install spring-watcher-listen -v 2.0.1
 
-# Initial app was built with:
-RUN mkdir -p /root/app && cd /root/app && rails new . --api --force --database=mysql && bundle
+RUN gem install rails -v 5.1.6.1
 
-# Add to Gemfile
-RUN printf "\ngem 'rb-readline'\ngem 'makara', '~> 0.4.0'\ngem 'distribute_reads', '~> 0.2.4'\ngem 'mysql2-reconnect_with_readonly'\ngem 'rack-cors'\n" >> /root/app/Gemfile
+RUN mkdir -p /app
 
-RUN mkdir -p /root/app/app/controllers/api/v1
-
-# rails g model Example name:string # created models/example.rb and schema.rb
-
-# Access API at http://localhost:3000/v1/examples
-
-# delete entries manually
-# Example.last.delete if Example.any?
+# Just install standard gems
+RUN mkdir -p /tmp/app && cd /tmp/app && rails new . --api --force --database=mysql && bundle && rm -rf /tmp/app
