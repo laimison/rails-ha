@@ -12,7 +12,7 @@ do
     then
       echo $my_host | awk '{print $NF}' >> /tmp/mysql-ip
     else
-      echo $instance >> /tmp/mysql-ip
+      echo $instance | grep [0-9]*\.[0-9]*\.[0-9]*\.[0-9]* >> /tmp/mysql-ip
     fi
   done
 
