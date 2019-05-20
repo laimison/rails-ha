@@ -21,8 +21,7 @@ services:
       REPLICATION_USER: replication
       REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
     ports:
-      # we want to use two different servers for HA, but without Docker Swarm
-      - "127.0.0.1:3306:3306"
+      - "0.0.0.0:3306:3306"
     volumes:
       - ./data/primary:/var/lib/mysql
       - ./mysqld-primary.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
@@ -42,9 +41,8 @@ services:
       MYSQL_ROOT_HOST: "%"
       REPLICATION_USER: replication
       REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
-    ports:
-      # we want to use two different servers for HA, but without Docker Swarm
-      - "0.0.0.0:3306:3306"
+    # ports:
+    #   - "0.0.0.0:3306:3306"
     volumes:
       - ./data/replica:/var/lib/mysql
       - ./mysqld-replica.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
@@ -56,16 +54,21 @@ services:
       context: .
       dockerfile: Dockerfile-rails
     environment:
-      MYSQL_1=127.0.0.1
-      MYSQL_2=mysql-2
+      # here can be hostnames or IP addresses for both MySQL instances
+      MYSQL_INSTANCES: mysql-1, mysql-2
+      MYSQL_USER: app
+      MYSQL_PASSWORD: ${APP_PASSWORD}
+      MYSQL_DATABASE: my-app
     command: >
       bash -c "
-      cd /app && bundle install && rails db:migrate ; rails s -p 5000 -b 0.0.0.0
+      /dns-auto-failover.sh
+      & cd /app && bundle install && rails db:migrate ; rails s -p 5000 -b 0.0.0.0
       ; tail -F /dev/null"
     volumes:
       - ./rails:/app
+      - ./dns-auto-failover.sh:/dns-auto-failover.sh
     ports:
-      - "127.0.0.1:5000:5000"
+      - "0.0.0.0:5000:5000"
     working_dir: /app
   rails-2:
     container_name: rails-2
@@ -74,16 +77,21 @@ services:
       context: .
       dockerfile: Dockerfile-rails
     environment:
-      MYSQL_1=127.0.0.1
-      MYSQL_2=mysql-2
+      # here can be hostnames or IP addresses for both MySQL instances
+      MYSQL_INSTANCES: mysql-1, mysql-2
+      MYSQL_USER: app
+      MYSQL_PASSWORD: ${APP_PASSWORD}
+      MYSQL_DATABASE: my-app
     command: >
       bash -c "
-      cd /app && bundle install && rails db:migrate ; rails s -p 5000 -b 0.0.0.0
+      /dns-auto-failover.sh
+      & cd /app && bundle install && rails db:migrate ; rails s -p 5000 -b 0.0.0.0
       ; tail -F /dev/null"
     volumes:
       - ./rails:/app
-    ports:
-      - "0.0.0.0:5000:5000"
+      - ./dns-auto-failover.sh:/dns-auto-failover.sh
+    # ports:
+    #   - "0.0.0.0:5000:5000"
     working_dir: /app
   mysql-monitor:
     # docker exec -it mysql-monitor bash

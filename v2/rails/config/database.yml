@@ -22,10 +22,10 @@ default: &default
     connections:
       - role: master
         name: master
-        url: 'mysql2://app:example@mysql-master:3306/my-app'
+        url: 'mysql2://app:<%= ENV['MYSQL_PASSWORD'] %>@mysql-master:3306/my-app'
       - role: replica
         name: replica
-        url: 'mysql2://app:example@mysql-replica:3306/my-app'
+        url: 'mysql2://app:<%= ENV['MYSQL_PASSWORD'] %>@mysql-replica:3306/my-app'
 
 test:
   <<: *default
