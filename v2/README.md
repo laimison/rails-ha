@@ -165,7 +165,9 @@ docker exec -it mysql-monitor bash -c 'mysqlrplshow --master=root:"${MYSQL_ROOT_
 docker logs -f mysql-1
 ```
 
-2) Sync Original Master as Slave
+2) Make a mysqldump backup?
+
+3) Sync Original Master as Slave
 
 Method A - connect to master
 
@@ -195,7 +197,7 @@ docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SE
 docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "start slave"'
 ```
 
-3) Test if slave successfully replicated
+4) Test if slave successfully replicated
 
 ```
 docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from test;"'
@@ -272,51 +274,7 @@ docker exec -it mysql-monitor bash -c 'mysqlrplshow --master=root:"${MYSQL_ROOT_
 docker logs -f mysql-monitor
 ```
 
-## Change DNS
-
-List DNS records
-
-```
-docker exec -it rails bash -c "cat /etc/hosts; host mysql-1; host mysql-2"
-```
-
-Delete mysql DNS records
-
-```
-docker exec -it rails bash -c "cat /etc/hosts > /tmp/hosts && sed -i \"/\smysql-/d\" /tmp/hosts && cat /tmp/hosts > /etc/hosts"
-```
-
-If mysql-1 becoming master and mysql-2 is left as replica
-
-```
-docker exec -it rails bash -c "host mysql-1 | awk '{print \$NF}' | while read -r line; do echo \"\$line mysql-master\" | tee -a /etc/hosts; done"
-docker exec -it rails bash -c "host mysql-2 | awk '{print \$NF}' | while read -r line; do echo \"\$line mysql-replica\" | tee -a /etc/hosts; done"
-```
-
-OR
-
-If mysql-2 becoming master and mysql-1 is left as replica
-
-```
-docker exec -it rails bash -c "host mysql-2 | awk '{print \$NF}' | while read -r line; do echo \"\$line mysql-master\" | tee -a /etc/hosts; done"
-docker exec -it rails bash -c "host mysql-1 | awk '{print \$NF}' | while read -r line; do echo \"\$line mysql-replica\" | tee -a /etc/hosts; done"
-```
-
-Verify
-
-```
-docker exec -it rails bash -c "cat /etc/hosts; host mysql-1; host mysql-2"
-```
-
-Check opened connections
-
-```
-docker exec -it rails bash -c "lsof -i -P"
-docker exec -it rails bash -c "ping -c 3 mysql-master"
-docker exec -it rails bash -c "ping -c 3 mysql-replica"
-```
-
-## Restore mysqlfailover
+8) Restore mysqlfailover process on mysql-monitor by restarting container
 
 ```
 docker stop mysql-monitor
@@ -328,6 +286,12 @@ docker logs -f mysql-monitor
 
 ```
 python3 -m http.server 8000 --bind 192.168.2.100
+```
+
+## An example to track connections
+
+```
+lsof -i -P
 ```
 
 ## Reach host on Mac OS

@@ -1,6 +1,6 @@
 version: '3.5'
 
-# mkdir -p data/primary && mkdir -p data/replica && mkdir -p data/rails && docker-compose build && docker-compose down && docker-compose up -d && docker-compose ps
+# mkdir -p data/primary && mkdir -p data/replica && docker-compose build && docker-compose down && docker-compose up -d && docker-compose ps
 
 services:
   # https://hub.docker.com/_/mysql

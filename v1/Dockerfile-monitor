@@ -1,9 +1,0 @@
-FROM ubuntu:18.04
-RUN apt update && apt install -y wget iputils-ping vim net-tools lsof sudo less netcat dnsutils iproute2 tcpdump tcptrack psmisc
-RUN apt install -y python python-pip mysql-client screen \
-&& pip install mysql-connector \
-&& wget https://github.com/mysql/mysql-utilities/archive/release-1.6.5.tar.gz \
-&& tar xf release-1.6.5.tar.gz \
-&& cd mysql-utilities-release-1.6.5 \
-&& python ./setup.py build \
-&& python ./setup.py install

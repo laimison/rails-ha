@@ -20,3 +20,4 @@ enforce-gtid-consistency = true
 log-slave-updates = true
 report-host = mysql-1
 report-port = 3306
+read_only = OFF

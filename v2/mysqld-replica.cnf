@@ -21,3 +21,4 @@ log-slave-updates = true
 report-host = mysql-2
 report-port = 3306
 master-info-repository = TABLE
+read_only = ON
