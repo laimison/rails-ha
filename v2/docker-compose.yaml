@@ -93,6 +93,21 @@ services:
     # ports:
     #   - "0.0.0.0:5000:5000"
     working_dir: /app
+  react:
+    container_name: react
+    hostname: react
+    build:
+      context: .
+      dockerfile: Dockerfile-react
+    command: >
+      bash -c "
+      npm start
+      ; tail -F /dev/null"
+    volumes:
+      - ./react:/app
+    ports:
+      - "0.0.0.0:3000:3000"
+    working_dir: /app
   mysql-monitor:
     # docker exec -it mysql-monitor bash
     container_name: mysql-monitor

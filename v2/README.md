@@ -27,10 +27,16 @@ docker exec -it mysql-monitor bash -c "ps -ef -ww"
 docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; create table test (id INT NOT NULL AUTO_INCREMENT, name varchar(20), PRIMARY KEY (id))"'
 ```
 
-3) Check current topology
+3) Check current topology, read-only status and records
 
 ```
 docker exec -it mysql-monitor bash -c 'mysqlrplshow --master=root:"${MYSQL_ROOT_PASSWORD}"@mysql-1:3306 --discover-slaves-login=root:"${MYSQL_ROOT_PASSWORD}" --verbose'
+
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT @@global.read_only"'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT @@global.read_only"'
+
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from examples;"'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from examples;"'
 ```
 
 4) Connect Second DB to Master
