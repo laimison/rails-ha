@@ -125,6 +125,7 @@ services:
       CDN_AUTH_KEY: ${CDN_AUTH_KEY}
       CDN_AUTH_EMAIL: ${CDN_AUTH_EMAIL}
       CDN_API_ADDRESS: ${CDN_API_ADDRESS}
+      CND_ORIGINAL_MASTER_IP: ${CDN_ORIGINAL_MASTER_IP}
     command: >
       bash -c "
       tail -F /tmp/mysqlfailover.log > /dev/console

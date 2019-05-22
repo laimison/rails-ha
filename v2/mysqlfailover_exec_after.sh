@@ -3,10 +3,10 @@
 echo "`date` Running Commands After MySQL Failover"
 
 # echo "Remove node-1 from CDN pool"
-# curl -vsX GET "${CDN_API_ADDRESS}" -H "Content-Type: application/json" -H "X-Auth-Email: ${CDN_AUTH_EMAIL}" -H "X-Auth-Key: ${CDN_AUTH_KEY}" | jq .result > /tmp/CDN.json
-# logic to replace true to false in /tmp/CDN.json
-# curl -vsX PUT ${CDN_API_ADDRESS} -H "Content-Type: application/json" -H "X-Auth-Email: ${CDN_AUTH_EMAIL}" -H "X-Auth-Key: ${CDN_AUTH_KEY}" -d @/tmp/CDN.json
-# sleep 10
+curl -vsX GET "${CDN_API_ADDRESS}" -H "Content-Type: application/json" -H "X-Auth-Email: ${CDN_AUTH_EMAIL}" -H "X-Auth-Key: ${CDN_AUTH_KEY}" | jq .result | tee /tmp/CDN.json
+cat /tmp/CDN.json | tr -d "\n" | sed -e "s|\"${CND_ORIGINAL_MASTER_IP}\",      \"enabled\": true|\"${CND_ORIGINAL_MASTER_IP}\",      \"enabled\": false|g" | tee /tmp/CDN-replace.json | jq
+curl -vsX PUT ${CDN_API_ADDRESS} -H "Content-Type: application/json" -H "X-Auth-Email: ${CDN_AUTH_EMAIL}" -H "X-Auth-Key: ${CDN_AUTH_KEY}" -d @/tmp/CDN-replace.json
+sleep 10
 
 echo "Enable read-write on new master"
 docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SET GLOBAL read_only = OFF;"'
