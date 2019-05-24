@@ -4,7 +4,7 @@ Ensuring working replication, automatic failover, manual slave restoring and opt
 
 ## Initialise
 
-Steps before leaving high availability for production
+High availability prerequisites for production
 
 ### Recreate DB from Zero
 

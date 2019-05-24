@@ -62,7 +62,7 @@ services:
     command: >
       bash -c "
       /dns-auto-failover.sh
-      & cd /app && bundle install && rails db:migrate ; rails s -p 5000 -b 0.0.0.0
+      & cd /app && bundle install && timeout 10 rails db:migrate ; rails s -p 5000 -b 0.0.0.0
       ; tail -F /dev/null"
     volumes:
       - ./rails:/app
@@ -85,7 +85,7 @@ services:
     command: >
       bash -c "
       /dns-auto-failover.sh
-      & cd /app && bundle install && rails db:migrate ; rails s -p 5000 -b 0.0.0.0
+      & cd /app && bundle install && timeout 10 rails db:migrate ; rails s -p 5000 -b 0.0.0.0
       ; tail -F /dev/null"
     volumes:
       - ./rails:/app
