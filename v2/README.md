@@ -21,18 +21,17 @@ docker exec -it mysql-monitor bash -c "killall sleep mysqlfailover"
 docker exec -it mysql-monitor bash -c "ps -ef -ww"
 ```
 
-2) Create the table (test table is not for Rails so can be skipped)
-
-```
-docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; create table test (id INT NOT NULL AUTO_INCREMENT, name varchar(20), PRIMARY KEY (id))"'
-```
-
-3) Check current DB topology, CDN status, DB read-only status and DB records
+2) Check current DB topology, CDN status, DB read-only status and DB records
 
 ```
 docker exec -it mysql-monitor bash -c 'mysqlrplshow --master=root:"${MYSQL_ROOT_PASSWORD}"@mysql-1:3306 --discover-slaves-login=root:"${MYSQL_ROOT_PASSWORD}" --verbose'
 
 docker exec -it mysql-monitor bash -c 'curl -sX GET "${CDN_API_ADDRESS}" -H "Content-Type: application/json" -H "X-Auth-Email: ${CDN_AUTH_EMAIL}" -H "X-Auth-Key: ${CDN_AUTH_KEY}" | jq .result'
+
+docker exec -it mysql-monitor bash -c 'host mysql-1; host mysql-2'
+
+docker exec -it rails-1 bash -c 'cat /etc/hosts | grep mysql'
+docker exec -it rails-2 bash -c 'cat /etc/hosts | grep mysql'
 
 docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT @@global.read_only"'
 docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT @@global.read_only"'
@@ -84,15 +83,16 @@ docker exec -it mysql-monitor bash -c 'mysqlrplshow --master=root:"${MYSQL_ROOT_
 6) Check Whether Replication Worked
 
 ```
-docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from test;"'
-docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; insert into test(name) values (\"`shuf -n1 -e crab medusa seal`\")"'
-docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from test;"'
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from examples;"'
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; insert into examples(name, created_at, updated_at) values (\"`shuf -n1 -e crab medusa seal`\", \"2019-01-01 00:00:00\", \"2019-01-01 00:00:00\")"'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from examples;"'
 docker-compose down && docker-compose up -d
-docker exec -it mysql-monitor bash -c "ps -ef -ww" # if this is monitoring, it's fine
+docker exec -it mysql-monitor bash -c "ps -ef -ww" # if mysqlfailover is running, it's fine
 docker logs -f mysql-monitor
-docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from test;"'
-docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; insert into test(name) values (\"`shuf -n1 -e crab medusa seal`\")"'
-docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from test;"'
+
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from examples;"'
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; insert into examples(name, created_at, updated_at) values (\"`shuf -n1 -e crab medusa seal`\", \"2019-01-01 00:00:00\", \"2019-01-01 00:00:00\")"'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from examples;"'
 ```
 
 ## Test When Slave is Down (Optional)
@@ -100,8 +100,13 @@ docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "us
 Usually to not have running slave is a simple issue, but just in case testing it...
 
 ```
-docker logs -f mysql-monitor
 docker stop mysql-2
+
+docker logs -f mysql-monitor
+docker exec -it rails-1 bash -c 'cat /etc/hosts | grep mysql'
+docker exec -it rails-2 bash -c 'cat /etc/hosts | grep mysql'
+# check if page (localhost example) http://localhost:3000
+
 docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; insert into test(name) values (\"`shuf -n1 -e crab medusa seal`\")"'
 docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from test;"'
 docker start mysql-2

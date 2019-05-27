@@ -1,10 +1,12 @@
-require 'mysql2/reconnect_with_readonly'
+# require 'mysql2/reconnect_with_readonly'
 
 module Api::V1
   class ExamplesController < ApplicationController
     # GET http://IP:PORT/v1/examples
     def index
-      distribute_reads(max_lag: 3, lag_failover: true) do
+      # distribute_reads(max_lag: 3, lag_failover: true, failover: true) do
+      # distribute_reads do
+      distribute_reads(max_lag: 3) do
         everything = Example.all
         render json: everything
       end

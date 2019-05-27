@@ -7,7 +7,8 @@ end
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.1.6', '>= 5.1.6.2'
+# gem 'rails', '~> 5.1.6', '>= 5.1.6.2'
+gem 'rails', '~> 5.1.6', '>= 5.1.6.1'
 
 # Use Puma as the app server
 gem 'puma', '~> 3.7'
@@ -45,7 +46,7 @@ gem 'rb-readline'
 gem 'mysql2', '>= 0.3.18', '< 0.6.0' # tested 0.5.2
 gem 'makara', '~> 0.4.0'
 gem 'distribute_reads', '~> 0.2.4'
-gem 'mysql2-reconnect_with_readonly', '~> 0.2.0'
+# gem 'mysql2-reconnect_with_readonly', '~> 0.2.0'
 
 # Cors
 gem 'rack-cors'

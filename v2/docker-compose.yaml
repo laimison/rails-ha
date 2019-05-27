@@ -54,11 +54,9 @@ services:
       context: .
       dockerfile: Dockerfile-rails
     environment:
-      # Variables for DNS auto script. Here can be hostnames or IPs. Priority is for IPs
-      MYSQL-IP-1: ""
-      MYSQL-IP-2: ""
-      MYSQL-DNS-1: "mysql-1"
-      MYSQL-DNS-2: "mysql-2"
+      # Variables for DNS auto script
+      MYSQL1: mysql-1
+      MYSQL2: mysql-2
       # Standard MySQL variables
       MYSQL_USER: app
       MYSQL_PASSWORD: ${APP_PASSWORD}
@@ -83,11 +81,9 @@ services:
       context: .
       dockerfile: Dockerfile-rails
     environment:
-      # Variables for DNS auto script. Here can be hostnames or IPs. Priority is for IPs
-      MYSQL-IP-1: ""
-      MYSQL-IP-2: ""
-      MYSQL-DNS-1: "mysql-1"
-      MYSQL-DNS-2: "mysql-2"
+      # Variables for DNS auto script
+      MYSQL1: mysql-1
+      MYSQL2: mysql-2
       # Standard MySQL variables
       MYSQL_USER: app
       MYSQL_PASSWORD: ${APP_PASSWORD}
@@ -102,8 +98,9 @@ services:
     volumes:
       - ./rails:/app
       - ./dns-auto-failover.sh:/dns-auto-failover.sh
-    # ports:
-    #   - "0.0.0.0:5000:5000"
+    ports:
+      # just for the test
+      - "0.0.0.0:5001:5000"
     working_dir: /app
   react:
     container_name: react
@@ -148,7 +145,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./mysqlfailover_exec_after.sh:/scripts/mysqlfailover_exec_after.sh
-      - ./mysqlswitchover_exec_after.sh:/scripts/mysqlswitchover_exec_after.sh
+      # - ./mysqlswitchover_exec_after.sh:/scripts/mysqlswitchover_exec_after.sh
     stdin_open: true
     tty: true
     working_dir: /scripts

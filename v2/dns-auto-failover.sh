@@ -1,65 +1,20 @@
 #!/bin/bash
 
+# Adding "fake" IP so Rails can start successfully
+echo '10.0.0.1 mysql-master' >> /etc/hosts
+echo '10.0.0.1 mysql-replica' >> /etc/hosts
+
 while true
 do
-  # echo "iterating..."
-  > /tmp/mysql-ip
+  # Makara doesn't like if MySQL DNS is not resolved when replica is down
+  # so we can use "random IP" - 10.0.0.1 to work around this issue
+  IP1=`echo $MYSQL1 | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" || host $MYSQL1 | grep 'has address' | awk '{print $NF}' | grep -v ^$ || echo 10.0.0.1`
+  IP2=`echo $MYSQL2 | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" || host $MYSQL2 | grep 'has address' | awk '{print $NF}' | grep -v ^$ || echo 10.0.0.1`
 
-  # Take only 2 instances
-  for instance in $(echo $MYSQL_INSTANCES | sed "s/,/ /g" | awk '{print $1" "$2}')
-  do
-    if my_host=`host $instance 2>/dev/null`
-    then
-      echo $my_host | awk '{print $NF}' >> /tmp/mysql-ip
-    else
-      echo $instance | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" >> /tmp/mysql-ip
-    fi
-  done
-
-  for ip in `cat /tmp/mysql-ip`
-  do
-    if ! timeout 5 mysql -u app -p$MYSQL_PASSWORD -h $ip -s -N -e "SELECT @@global.read_only" >/dev/null 2>/dev/null
-    then
-      echo "Error: not able to do SELECT queries on $ip"
-    fi
-
-    if timeout 5 mysql -u app -p$MYSQL_PASSWORD -h $ip -s -N -e "SELECT @@global.read_only" | grep -q ^0$
-    then
-      master=$ip
-      replica=`cat /tmp/mysql-ip | grep -v ^$ip$ | head -n 1`
-      echo "mysql-master at $master and mysql-replica at $replica"
-
-      # Update entries if any changes in a cluster
-      if ! cat /etc/hosts | grep mysql-master | grep -q $master
-      then
-        echo "Detected changes in a cluster so replacing $master mysql-master"
-        cat /etc/hosts > /tmp/hosts && sed -i "/\smysql-master/d" /tmp/hosts && cat /tmp/hosts > /etc/hosts
-        echo "$master mysql-master" >> /etc/hosts
-      fi
-
-      if ! cat /etc/hosts | grep mysql-replica | grep -q $replica
-      then
-        echo "Detected changes in a cluster so replacing $replica mysql-replica"
-        cat /etc/hosts > /tmp/hosts && sed -i "/\smysql-replica/d" /tmp/hosts && cat /tmp/hosts > /etc/hosts
-        echo "$replica mysql-replica" >> /etc/hosts
-      fi
-
-      # Add entries if not already exists
-      if ! grep -q mysql-master /etc/hosts
-      then
-        echo "DNS records not found so adding $master mysql-master"
-        echo "$master mysql-master" >> /etc/hosts
-      fi
-
-      if ! grep -q mysql-replica /etc/hosts
-      then
-        echo "DNS records not found so adding $replica mysql-replica"
-        echo "$replica mysql-replica" >> /etc/hosts
-      fi
-
-      break # from for loop
-    fi
-  done
+  # MySQL instance should have read_only = 0 printed to be mysql-master,
+  # otherwise assume this IP is mysql-replica
+  (timeout 3 mysql -u app -p$MYSQL_PASSWORD -h $IP1 -s -N -e "SELECT @@global.read_only" 2>/dev/null | grep -q ^0$ && (sed "/mysql-master/c$IP1 mysql-master" /etc/hosts > /tmp/hosts && /bin/cp -f /tmp/hosts /etc/hosts)) || (sed "/mysql-replica/c$IP1 mysql-replica" /etc/hosts > /tmp/hosts && /bin/cp -f /tmp/hosts /etc/hosts)
+  (timeout 3 mysql -u app -p$MYSQL_PASSWORD -h $IP2 -s -N -e "SELECT @@global.read_only" 2>/dev/null | grep -q ^0$ && (sed "/mysql-master/c$IP2 mysql-master" /etc/hosts > /tmp/hosts && /bin/cp -f /tmp/hosts /etc/hosts)) || (sed "/mysql-replica/c$IP2 mysql-replica" /etc/hosts > /tmp/hosts && /bin/cp -f /tmp/hosts /etc/hosts)
 
   sleep 10
 done
