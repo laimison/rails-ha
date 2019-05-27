@@ -54,10 +54,16 @@ services:
       context: .
       dockerfile: Dockerfile-rails
     environment:
-      # here can be hostnames or IP addresses for both MySQL instances
-      MYSQL_INSTANCES: mysql-1, mysql-2
+      # Variables for DNS auto script. Here can be hostnames or IPs. Priority is for IPs
+      MYSQL-IP-1: ""
+      MYSQL-IP-2: ""
+      MYSQL-DNS-1: "mysql-1"
+      MYSQL-DNS-2: "mysql-2"
+      # Standard MySQL variables
       MYSQL_USER: app
       MYSQL_PASSWORD: ${APP_PASSWORD}
+      MYSQL_MASTER: mysql-master
+      MYSQL_REPLICA: mysql-replica
       MYSQL_DATABASE: my-app
     command: >
       bash -c "
@@ -77,10 +83,16 @@ services:
       context: .
       dockerfile: Dockerfile-rails
     environment:
-      # here can be hostnames or IP addresses for both MySQL instances
-      MYSQL_INSTANCES: mysql-1, mysql-2
+      # Variables for DNS auto script. Here can be hostnames or IPs. Priority is for IPs
+      MYSQL-IP-1: ""
+      MYSQL-IP-2: ""
+      MYSQL-DNS-1: "mysql-1"
+      MYSQL-DNS-2: "mysql-2"
+      # Standard MySQL variables
       MYSQL_USER: app
       MYSQL_PASSWORD: ${APP_PASSWORD}
+      MYSQL_MASTER: mysql-master
+      MYSQL_REPLICA: mysql-replica
       MYSQL_DATABASE: my-app
     command: >
       bash -c "
