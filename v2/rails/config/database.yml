@@ -1,32 +1,36 @@
-# Master blacklisting issue
-# https://github.com/taskrabbit/makara/issues/101
-
 default: &default
-  # Parameter to explor if this is allowed here
-  # reconnect: true
-  # timeout: 5000
-  # reaping_frequency: 10
-  # connection_timeout: 5
-  # read_timeout: 5
+  reconnect: true
   url: mysql2-makara:///
   makara:
-    # master_strategy: failover
-    # master_node_selector: 'Makara::NodeSelectors::SingleWithFailover'
-    # slave_node_selector: 'Makara::NodeSelectors::RoundRobin'
-    sticky: true
-    # Paramters to explore
-    # slave_strategy: failover
+    # Manage Stickiness
+    #
+    # When sticky:true, once a query as been sent to master, all queries for the rest of the request will also be sent to master.
+    # In addition, the cookie described above will be set client side with an expiration defined by time at end of original request + master_ttl.
+    # As long as the cookie is valid, all requests will send queries to master.
+    # When sticky:false, only queries that need to go to master will go there. Subsequent read queries in the same request will go to slaves.
+    #
+    # sticky: true
     # master_ttl: 5
-    # rescue_connection_failures: false
-    # blacklist_duration: 0
-    connections:
-      - role: master
-        name: primary
-        url: "mysql2://<%= ENV['MYSQL_USER'] %>:<%= ENV['MYSQL_PASSWORD'] %>@<%= ENV['MYSQL_MASTER'] %>:3306/<%= ENV['MYSQL_DATABASE'] %>"
-      - name: replica
-        url: "mysql2://<%= ENV['MYSQL_USER'] %>:<%= ENV['MYSQL_PASSWORD'] %>@<%= ENV['MYSQL_REPLICA'] %>:3306/<%= ENV['MYSQL_DATABASE'] %>"
-        # url: 'mysql2://root:example@mysql-replica:3306/my-app'
 
+    connections:
+      - name: master-1
+        role: master
+        url: "<%= ENV['MASTER_URL'] %>"
+        # do not blacklist node at any error, useful in case of one master
+        # likely solves master's blacklisting issue at https://github.com/taskrabbit/makara/issues/101
+        disable_blacklist: true
+
+      - name: replica-1
+        url: "<%= ENV['REPLICA_URL'] %>"
+
+        # Matchers
+        #
+        # If any of these connection errors matched, it does "[distribute_reads] No replicas available. Falling back to master pool."
+        # So if slaves DNS is not resolved, it reads from master.
+        blacklist_duration: 5
+        connection_error_matchers:
+          # Covers the error: "Unknown MySQL server host 'mysql-replica' (-2)"
+           - !ruby/regexp '/Unknown MySQL server host/'
 test:
   <<: *default
 

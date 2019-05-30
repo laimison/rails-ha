@@ -54,15 +54,14 @@ services:
       context: .
       dockerfile: Dockerfile-rails
     environment:
-      # Variables for DNS auto script
+      # DNS/IP variables for DNS auto script
       MYSQL1: mysql-1
       MYSQL2: mysql-2
-      # Standard MySQL variables
+      # Makara MySQL connector
       MYSQL_USER: app
       MYSQL_PASSWORD: ${APP_PASSWORD}
-      MYSQL_MASTER: mysql-master
-      MYSQL_REPLICA: mysql-replica
-      MYSQL_DATABASE: my-app
+      MASTER_URL: "mysql2://app:${APP_PASSWORD}@mysql-master:3306/my-app"
+      REPLICA_URL: "mysql2://app:${APP_PASSWORD}@mysql-replica:3306/my-app"
     command: >
       bash -c "
       /dns-auto-failover.sh
@@ -81,15 +80,14 @@ services:
       context: .
       dockerfile: Dockerfile-rails
     environment:
-      # Variables for DNS auto script
+      # DNS/IP variables for DNS auto script
       MYSQL1: mysql-1
       MYSQL2: mysql-2
-      # Standard MySQL variables
+      # Makara MySQL connector
       MYSQL_USER: app
       MYSQL_PASSWORD: ${APP_PASSWORD}
-      MYSQL_MASTER: mysql-master
-      MYSQL_REPLICA: mysql-replica
-      MYSQL_DATABASE: my-app
+      MASTER_URL: "mysql2://app:${APP_PASSWORD}@mysql-master:3306/my-app"
+      REPLICA_URL: "mysql2://app:${APP_PASSWORD}@mysql-replica:3306/my-app"
     command: >
       bash -c "
       /dns-auto-failover.sh

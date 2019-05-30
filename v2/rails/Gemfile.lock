@@ -46,7 +46,7 @@ GEM
     distribute_reads (0.2.4)
       makara
     erubi (1.8.0)
-    ffi (1.11.0)
+    ffi (1.11.1)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
     i18n (1.6.0)

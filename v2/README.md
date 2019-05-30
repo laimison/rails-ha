@@ -133,6 +133,7 @@ docker exec -it mysql-monitor bash -c 'mysqlrplshow --master=root:"${MYSQL_ROOT_
 
 ```
 # you may need to do: docker restart mysql-monitor
+docker exec -it mysql-monitor bash -c "ps -ef -ww"
 docker logs -f mysql-monitor
 ```
 
@@ -142,24 +143,33 @@ docker logs -f mysql-monitor
 docker kill --signal=SIGKILL mysql-1
 # wait here...
 docker exec -it mysql-monitor bash -c 'mysqlrplshow --master=root:"${MYSQL_ROOT_PASSWORD}"@mysql-2:3306 --discover-slaves-login=root:"${MYSQL_ROOT_PASSWORD}" --verbose'
-docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SET GLOBAL read_only = OFF;"'
+# docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SET GLOBAL read_only = OFF;"'
+
+docker exec -it mysql-monitor bash -c 'host mysql-1; host mysql-2'
+
+docker exec -it rails-1 bash -c 'cat /etc/hosts | grep mysql'
+docker exec -it rails-2 bash -c 'cat /etc/hosts | grep mysql'
+
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT @@global.read_only"'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT @@global.read_only"'
 ```
 
 4) write some records to slave and restore the original master
 
 ```
-docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from test;"'
-docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; insert into test(name) values (\"`shuf -n1 -e crab medusa seal`\")"'
-docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from test;"'
+# docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from test;"'
+# docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; insert into test(name) values (\"`shuf -n1 -e crab medusa seal`\")"'
+# docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "use my-app; select * from test;"'
 
 docker start mysql-1
-docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SET GLOBAL read_only = ON;"'
-docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}"'
+# docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SET GLOBAL read_only = ON;"'
+# docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}"'
 ```
 
 5) stop mysqlfailover
 
 ```
+docker exec -it mysql-monitor bash -c "ps -ef -ww"
 docker exec -it mysql-monitor bash -c "killall sleep mysqlfailover"
 docker exec -it mysql-monitor bash -c "ps -ef -ww"
 ```
@@ -171,6 +181,7 @@ docker exec -it mysql-monitor bash -c "ps -ef -ww"
 ```
 docker exec -it mysql-monitor bash -c 'mysqlrplshow --master=root:"${MYSQL_ROOT_PASSWORD}"@mysql-2:3306 --discover-slaves-login=root:"${MYSQL_ROOT_PASSWORD}" --verbose'
 docker logs -f mysql-1
+docker logs -f mysql-monitor
 ```
 
 2) Make a mysqldump backup?
@@ -232,6 +243,10 @@ docker exec -it mysql-monitor bash -c 'mysqlrplshow --master=root:"${MYSQL_ROOT_
 ```
 docker exec -it mysql-monitor bash -c 'mysqlrpladmin --master=root:"${MYSQL_ROOT_PASSWORD}"@mysql-2:3306 --discover-slaves-login=root:"${MYSQL_ROOT_PASSWORD}" --new-master=root:"${MYSQL_ROOT_PASSWORD}"@mysql-1:3306 --rpl-user=replication:"${REPLICATION_PASSWORD}" --verbose switchover'
 docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SET GLOBAL read_only = ON;"'
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SET GLOBAL read_only = OFF;"'
+
+docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT @@global.read_only"'
+docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT @@global.read_only"'
 ```
 
 or
@@ -255,7 +270,6 @@ docker restart mysql-monitor
 5) Connect original slave to original master (enable writes)
 
 ```
-docker exec -it mysql-1 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SET GLOBAL read_only = OFF;"'
 docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CHANGE MASTER TO MASTER_HOST=\"mysql-1\", MASTER_PORT=3306, MASTER_USER=\"replication\", MASTER_PASSWORD=\"${REPLICATION_PASSWORD}\", MASTER_AUTO_POSITION=1"'
 docker exec -it mysql-2 bash -c 'mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "START SLAVE"'
 ```
@@ -285,9 +299,9 @@ docker logs -f mysql-monitor
 8) Restore mysqlfailover process on mysql-monitor by restarting container
 
 ```
-docker stop mysql-monitor
-docker-compose up -d mysql-monitor
-docker logs -f mysql-monitor
+# docker stop mysql-monitor
+# docker-compose up -d mysql-monitor
+# docker logs -f mysql-monitor
 ```
 
 ## An example to test service if responding
